@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2278,4 +2277,1243 @@
       {
         id: 13,
         themeKey: 'consultas',
-        topic: 'Correção 
+        topic: 'Correção em Papel e Variáveis Derivadas (Inédita)',
+        question: 'Qual é o procedimento correto para corrigir um dado em documento-fonte de papel e como criar variáveis derivadas na fase de análise?',
+        options: [
+          'Usar corretivo branco no papel; nunca dicotomizar variáveis contínuas.',
+          'Assinalar a mudança com tinta vermelha, datar e assinar; na análise, derivar variáveis como IMC > 25, agrupamento de fármacos ou anos-maços e tratar "não sei" de modo consistente.',
+          'Rasgar a folha original; transformar "não sei" em média aritmética.',
+          'Corrigir apenas no computador; priorizar datas de visita acima da variável de desfecho.'
+        ],
+        correct: 1,
+        explanation: 'Correções em papel devem ser marcadas (ex.: tinta vermelha), datadas e assinadas. Na análise, criam-se variáveis derivadas (dicotomizações, agrupamentos, cálculos como anos-maços) e manejam-se faltantes ("não sei") de forma consistente.'
+      },
+      {
+        id: 14,
+        themeKey: 'seguranca',
+        topic: 'Arquivamento Final (Inédita)',
+        question: 'Ao término de uma pesquisa clínica, o que deve ser arquivado para uso futuro segundo o Capítulo 16?',
+        options: [
+          'Apenas o resumo publicado no congresso.',
+          'Apenas as tabelas brutas sem o dicionário de dados.',
+          'Os dados originais, o dicionário de dados, o banco de dados final e as análises do estudo.',
+          'Somente a lista de senhas dos membros da equipe.'
+        ],
+        correct: 2,
+        explanation: 'Arquivar dados originais, dicionário de dados, banco final e análises permite responder a questões de integridade, fazer novas análises e compartilhar dados no futuro.'
+      }
+    ];
+
+    /* =======================================================================
+       3. ESTADO DO JOGO E SALVAMENTO NO localStorage
+       ======================================================================= */
+    const STORAGE_KEY = 'tco3_rpg_anim_v2';
+
+    const DEFAULT_STATE = {
+      xp: 0,
+      completedTravelers: [], // [0..4]
+      quizAwarded: {},        // { "t0_q0": true }
+      artifact1: false,
+      bossAttempts: 0,
+      lastFailedThemes: [],
+      avatarNode: 0,
+      soundOn: true
+    };
+
+    let state = loadState();
+    let currentView = 'hub';
+
+    // Estado do diálogo do viajante
+    let activeTravelerIdx = 0;
+    let speechIdx = 0;
+    let isTyping = false;
+    let typingTimer = null;
+    let currentTokens = [];
+    let typedCount = 0;
+
+    // Estado do quiz de fixação (1 por vez)
+    let tQuizIdx = 0;
+    let tQuizAnswered = false;
+
+    // Estado da batalha contra Malakor
+    let battle = {
+      questions: [],
+      idx: 0,
+      correct: 0,
+      wrongItems: [],
+      answered: false
+    };
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return { ...DEFAULT_STATE };
+        return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+      } catch (e) {
+        return { ...DEFAULT_STATE };
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+      updateHUD();
+    }
+
+    /* =======================================================================
+       4. WEB AUDIO API (EFEITOS SONOROS SINTETIZADOS - ZERO URLS EXTERNAS)
+       ======================================================================= */
+    let audioCtx = null;
+
+    function ensureAudio() {
+      if (!state.soundOn) return null;
+      try {
+        if (!audioCtx) {
+          const Ctx = window.AudioContext || window.webkitAudioContext;
+          if (!Ctx) return null;
+          audioCtx = new Ctx();
+        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return audioCtx;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function tone(freq, dur, type = 'sine', vol = 0.08, delay = 0) {
+      const ctx = ensureAudio();
+      if (!ctx) return;
+      const now = ctx.currentTime + delay;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(vol, now);
+      gain.gain.exponentialRampToValueAtTime(0.0008, now + dur);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + dur);
+    }
+
+    function playSFX(name) {
+      if (!state.soundOn) return;
+      if (name === 'blip') {
+        tone(480 + Math.random() * 140, 0.032, 'triangle', 0.025);
+      } else if (name === 'step') {
+        tone(280, 0.07, 'triangle', 0.05);
+        tone(360, 0.08, 'triangle', 0.05, 0.06);
+      } else if (name === 'correct') {
+        tone(523.25, 0.12, 'sine', 0.09, 0);
+        tone(659.25, 0.14, 'sine', 0.09, 0.08);
+        tone(783.99, 0.2, 'triangle', 0.09, 0.16);
+      } else if (name === 'slash') {
+        // Som de golpe mágico/espada + impacto no chefe
+        const ctx = ensureAudio();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(140, now + 0.22);
+        gain.gain.setValueAtTime(0.11, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+        tone(110, 0.18, 'square', 0.08, 0.16);
+        tone(659.25, 0.18, 'triangle', 0.08, 0.22);
+      } else if (name === 'wrong') {
+        tone(220, 0.16, 'sawtooth', 0.07, 0);
+        tone(145, 0.24, 'sawtooth', 0.08, 0.12);
+      } else if (name === 'victory') {
+        const notes = [523.25, 659.25, 783.99, 1046.5, 987.77, 1046.5];
+        const times = [0, 0.11, 0.22, 0.34, 0.5, 0.62];
+        notes.forEach((n, i) => tone(n, 0.26, 'triangle', 0.1, times[i]));
+      }
+    }
+
+    function toggleSound() {
+      state.soundOn = !state.soundOn;
+      saveState();
+      showToast(state.soundOn ? 'Som ativado' : 'Som desligado', state.soundOn ? '🔊' : '🔇');
+    }
+
+    /* =======================================================================
+       5. PARTÍCULAS DE FUNDO, HUD, XP E TOAST
+       ======================================================================= */
+    function initBgParticles() {
+      const wrap = document.getElementById('bg-particles');
+      wrap.innerHTML = '';
+      const colors = ['#ffe184', '#a78bfa', '#34d399', '#60a5fa'];
+      for (let i = 0; i < 24; i++) {
+        const d = document.createElement('div');
+        d.className = 'magic-mote';
+        const size = 2 + Math.random() * 4;
+        d.style.width = `${size}px`;
+        d.style.height = `${size}px`;
+        d.style.left = `${Math.random() * 100}%`;
+        d.style.background = colors[i % colors.length];
+        d.style.boxShadow = `0 0 ${size * 3}px ${colors[i % colors.length]}`;
+        d.style.animationDuration = `${11 + Math.random() * 14}s`;
+        d.style.animationDelay = `${-Math.random() * 20}s`;
+        wrap.appendChild(d);
+      }
+    }
+
+    function getLevel(xp) {
+      return { level: Math.floor(xp / 100) + 1, pct: xp % 100 };
+    }
+
+    function addXP(amount, x, y) {
+      const before = getLevel(state.xp).level;
+      state.xp += amount;
+      const after = getLevel(state.xp).level;
+      saveState();
+
+      if (x !== undefined && y !== undefined) {
+        const fx = document.createElement('div');
+        fx.className = 'floating-xp';
+        fx.textContent = `+${amount} XP ✨`;
+        fx.style.left = `${x}px`;
+        fx.style.top = `${y}px`;
+        document.body.appendChild(fx);
+        setTimeout(() => fx.remove(), 1200);
+      }
+
+      if (after > before) {
+        showToast(`Você subiu para o Nível ${after}!`, '🌟');
+      }
+    }
+
+    function updateHUD() {
+      const { level, pct } = getLevel(state.xp);
+      document.getElementById('hud-level').textContent = `Nível ${level} (${state.xp} XP)`;
+      document.getElementById('hud-xp-fill').style.width = `${pct}%`;
+
+      const arts = state.artifact1 ? 1 : 0;
+      document.getElementById('hud-artifacts').textContent = `Artefatos: ${arts}/6`;
+      document.getElementById('citadel-art-count').textContent = arts;
+      document.getElementById('hud-grimoire-count').textContent = `${state.completedTravelers.length}/5`;
+      document.getElementById('btn-sound').textContent = state.soundOn ? '🔊' : '🔇';
+
+      const locLabels = {
+        hub: 'Mapa dos Reinos',
+        map: 'Reino do Cap. 16',
+        traveler: `Cap. 16 • ${TRAVELERS[activeTravelerIdx]?.shortName || 'Viajante'}`,
+        boss: 'Cap. 16 • Arena de Malakor'
+      };
+      document.getElementById('hud-location').textContent = locLabels[currentView] || 'Mapa dos Reinos';
+    }
+
+    let toastTimer = null;
+    function showToast(msg, icon = '✨') {
+      const el = document.getElementById('toast');
+      document.getElementById('toast-icon').textContent = icon;
+      document.getElementById('toast-msg').textContent = msg;
+      el.classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.add('hidden'), 2800);
+    }
+
+    /* =======================================================================
+       6. NAVEGAÇÃO ENTRE TELAS
+       ======================================================================= */
+    function navigateTo(view) {
+      stopTyping();
+      stopConfetti();
+      currentView = view;
+      ['hub', 'map', 'traveler', 'boss'].forEach((v) => {
+        const el = document.getElementById(`view-${v}`);
+        if (v === view) {
+          el.classList.remove('hidden');
+          el.classList.remove('view-enter');
+          void el.offsetWidth;
+          el.classList.add('view-enter');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+
+      if (view === 'hub') renderHub();
+      if (view === 'map') renderMap();
+      updateHUD();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* =======================================================================
+       7. TELA HUB: MAPA DOS REINOS
+       ======================================================================= */
+    function renderHub() {
+      const grid = document.getElementById('realms-grid');
+      grid.innerHTML = '';
+
+      REALMS.forEach((r) => {
+        const isCap16 = r.id === 1;
+        const done = isCap16 && state.artifact1;
+        const card = document.createElement('div');
+        card.className = `rpg-panel realm-card ${r.unlocked ? 'playable' : 'locked'}`;
+
+        const badge = done
+          ? '<span class="badge badge-emerald">🔮 Conquistado</span>'
+          : r.unlocked
+          ? '<span class="badge badge-gold">✨ Jogável</span>'
+          : '<span class="badge badge-locked">🔒 Bloqueado</span>';
+
+        const meta = isCap16
+          ? `<div style="display:flex;justify-content:space-between;font-size:0.76rem;color:#94a3b8;padding-top:10px;border-top:1px solid rgba(228,185,76,0.18);">
+               <span>Viajantes: <strong style="color:var(--gold-bright);">${state.completedTravelers.length}/5</strong></span>
+               <span>${done ? 'Pergaminho obtido!' : 'Mini-Chefão: >70%'}</span>
+             </div>`
+          : '';
+
+        card.innerHTML = `
+          <div>
+            <div class="realm-top" style="margin-bottom:12px;">
+              <div class="realm-icon-box">${r.icon}</div>
+              ${badge}
+            </div>
+            <h3 class="epic-title" style="font-size:1.12rem;color:${r.unlocked ? 'var(--gold-bright)' : '#94a3b8'};">${r.title}</h3>
+            <p style="font-size:0.78rem;color:${r.unlocked ? 'var(--arcane-bright)' : '#64748b'};font-weight:600;margin:2px 0 8px;">${r.subtitle}</p>
+            <p style="font-size:0.84rem;color:#94a3b8;">${r.desc}</p>
+            ${meta}
+          </div>
+          <div>
+            ${
+              r.unlocked
+                ? `<button class="btn btn-gold" style="width:100%;">${done ? 'Reexplorar Reino →' : 'Entrar no Reino →'}</button>`
+                : `<button disabled class="btn btn-slate" style="width:100%;font-size:0.8rem;">🔒 Aguardando Desbloqueio</button>`
+            }
+          </div>
+        `;
+
+        if (r.unlocked) {
+          card.addEventListener('click', () => {
+            playSFX('step');
+            navigateTo('map');
+          });
+        }
+        grid.appendChild(card);
+      });
+    }
+
+    /* =======================================================================
+       8. TELA MAPA INTERATIVO DA FASE 1 (SVG ANIMADO)
+       ======================================================================= */
+    function getNextNodeIdx() {
+      for (let i = 0; i < TRAVELERS.length; i++) {
+        if (!state.completedTravelers.includes(i)) return i;
+      }
+      return 5; // Mini-chefão
+    }
+
+    function buildCurvePath(coordsList) {
+      if (coordsList.length < 2) return '';
+      const pts = coordsList.map((c) => ({ x: c.x * 10, y: c.y * 4.6 }));
+      let d = `M ${pts[0].x} ${pts[0].y}`;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const a = pts[i];
+        const b = pts[i + 1];
+        const midX = (a.x + b.x) / 2;
+        d += ` C ${midX} ${a.y}, ${midX} ${b.y}, ${b.x} ${b.y}`;
+      }
+      return d;
+    }
+
+    function renderMap() {
+      const nextIdx = getNextNodeIdx();
+
+      // Banner guia
+      const badge = document.getElementById('map-progress-badge');
+      const guide = document.getElementById('map-guide-text');
+      badge.textContent = state.artifact1 ? '🔮 Artefato Conquistado!' : `${state.completedTravelers.length}/5 Viajantes`;
+      badge.className = state.artifact1 ? 'badge badge-emerald' : 'badge badge-gold';
+
+      if (state.artifact1) {
+        guide.innerHTML = '<strong style="color:#34d399;">Reino Conquistado!</strong> Você obteve <em>O Pergaminho da Normalização</em>. Pode revisitar qualquer viajante ou enfrentar Malakor novamente.';
+      } else if (nextIdx === 5) {
+        guide.innerHTML = '<strong style="color:var(--gold-bright);">Todos os 5 viajantes concluídos!</strong> Caminhe até o Castelo para enfrentar <strong>Malakor, o Devorador de Dados</strong>!';
+      } else {
+        guide.innerHTML = `<strong>Próxima Parada:</strong> Clique em <strong style="color:var(--gold-bright);">${TRAVELERS[nextIdx].name}</strong> para caminhar pela trilha e iniciar o diálogo.`;
+      }
+
+      // Trilha SVG completa (base) e iluminada (até o último nó alcançável)
+      document.getElementById('svg-trail-base').setAttribute('d', buildCurvePath(MAP_COORDS));
+      const litEnd = state.artifact1 ? 6 : Math.max(2, nextIdx + 1);
+      document.getElementById('svg-trail-lit').setAttribute('d', buildCurvePath(MAP_COORDS.slice(0, litEnd)));
+
+      // Avatar na posição atual
+      const avPos = MAP_COORDS[state.avatarNode] || MAP_COORDS[0];
+      const avEl = document.getElementById('hero-avatar');
+      avEl.style.left = `${avPos.x}%`;
+      avEl.style.top = `${avPos.y}%`;
+
+      // Renderizar Nós + Barra Rápida
+      const layer = document.getElementById('map-nodes-layer');
+      const quick = document.getElementById('map-quick-grid');
+      layer.innerHTML = '';
+      quick.innerHTML = '';
+
+      for (let i = 0; i < 6; i++) {
+        const isBoss = i === 5;
+        const pos = MAP_COORDS[i];
+        const done = isBoss ? state.artifact1 : state.completedTravelers.includes(i);
+        const isCurrent = i === nextIdx && !state.artifact1;
+        const unlocked = isBoss ? true : i <= nextIdx || done;
+
+        const icon = isBoss ? '👹' : TRAVELERS[i].icon;
+        const label = isBoss ? 'Malakor (Chefe)' : `${i + 1}. ${TRAVELERS[i].shortName}`;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = `map-node-btn ${unlocked ? '' : 'is-locked'}`;
+        btn.style.left = `${pos.x}%`;
+        btn.style.top = `${pos.y}%`;
+
+        let circleState = '';
+        if (isBoss) circleState = done ? 'done' : 'boss';
+        else if (done) circleState = 'done';
+        else if (isCurrent) circleState = 'current';
+
+        btn.innerHTML = `
+          <div class="map-node-circle ${circleState}">
+            ${icon}
+            ${done ? '<span class="node-check">✓</span>' : ''}
+            ${!unlocked ? '<span class="node-lock">🔒</span>' : ''}
+          </div>
+          <span class="map-node-label">${label}</span>
+        `;
+        btn.addEventListener('click', () => walkToNode(i, unlocked));
+        layer.appendChild(btn);
+
+        // Botão na lista rápida
+        const qBtn = document.createElement('button');
+        qBtn.type = 'button';
+        qBtn.className = 'quick-stop-btn';
+        qBtn.disabled = !unlocked;
+        if (done) qBtn.style.borderColor = 'rgba(16,185,129,0.5)';
+        else if (isCurrent) qBtn.style.borderColor = 'var(--gold)';
+        else if (isBoss) qBtn.style.borderColor = 'rgba(239,68,68,0.5)';
+
+        qBtn.innerHTML = `
+          <span style="font-size:1.25rem;">${icon}</span>
+          <div style="min-width:0;">
+            <div style="font-size:0.78rem;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${label}</div>
+            <div style="font-size:0.68rem;color:${done ? '#34d399' : isBoss ? '#fca5a5' : isCurrent ? 'var(--gold-bright)' : '#64748b'};">
+              ${done ? 'Concluído ✓' : isBoss ? 'Simulado 10Q' : isCurrent ? 'Próximo ▶' : unlocked ? 'Revisar' : 'Bloqueado'}
+            </div>
+          </div>
+        `;
+        qBtn.addEventListener('click', () => walkToNode(i, unlocked));
+        quick.appendChild(qBtn);
+      }
+    }
+
+    function walkToNode(nodeIdx, unlocked) {
+      if (!unlocked) {
+        playSFX('wrong');
+        showToast('Conclua o viajante anterior para liberar este caminho!', '🔒');
+        return;
+      }
+
+      playSFX('step');
+      const target = MAP_COORDS[nodeIdx];
+      const avEl = document.getElementById('hero-avatar');
+      const moved = state.avatarNode !== nodeIdx;
+      state.avatarNode = nodeIdx;
+      saveState();
+
+      avEl.style.left = `${target.x}%`;
+      avEl.style.top = `${target.y}%`;
+
+      setTimeout(() => {
+        if (nodeIdx === 5) openBossIntro();
+        else openTravelerScene(nodeIdx);
+      }, moved ? 680 : 120);
+    }
+
+    /* =======================================================================
+       9. DIÁLOGO COM VIAJANTES (UMA CAIXA POR VEZ + TYPEWRITER)
+       ======================================================================= */
+    function parseSpeechTokens(text) {
+      const tokens = [];
+      let hl = false;
+      let i = 0;
+      while (i < text.length) {
+        if (text[i] === '*' && text[i + 1] === '*') {
+          hl = !hl;
+          i += 2;
+        } else {
+          tokens.push({ ch: text[i], hl });
+          i++;
+        }
+      }
+      return tokens;
+    }
+
+    function renderTokens(tokens, count, showCursor) {
+      let html = '';
+      let inHl = false;
+      const len = Math.min(count, tokens.length);
+      for (let i = 0; i < len; i++) {
+        const t = tokens[i];
+        if (t.hl && !inHl) { html += '<span class="hl">'; inHl = true; }
+        if (!t.hl && inHl) { html += '</span>'; inHl = false; }
+        html += t.ch === '\n' ? '<br>' : t.ch;
+      }
+      if (inHl) html += '</span>';
+      if (showCursor) html += '<span class="typing-cursor"></span>';
+      return html;
+    }
+
+    function stopTyping() {
+      clearInterval(typingTimer);
+      typingTimer = null;
+      isTyping = false;
+      const frame = document.getElementById('traveler-portrait-frame');
+      if (frame) frame.classList.remove('talking');
+    }
+
+    function openTravelerScene(idx) {
+      activeTravelerIdx = idx;
+      speechIdx = 0;
+      const t = TRAVELERS[idx];
+
+      document.getElementById('traveler-badge').textContent = `Viajante ${idx + 1} de 5`;
+      document.getElementById('traveler-portrait-svg').innerHTML = SVGS[t.svgKey];
+      document.getElementById('traveler-title-main').textContent = t.name;
+      document.getElementById('traveler-subtitle-main').textContent = t.subtitle;
+      document.getElementById('dialogue-nameplate').textContent = t.shortName;
+
+      document.getElementById('traveler-dialogue-panel').classList.remove('hidden');
+      document.getElementById('traveler-quiz-panel').classList.add('hidden');
+
+      navigateTo('traveler');
+      showSpeech(0);
+    }
+
+    function exitTravelerToMap() {
+      stopTyping();
+      navigateTo('map');
+    }
+
+    function showSpeech(index) {
+      stopTyping();
+      const t = TRAVELERS[activeTravelerIdx];
+      speechIdx = index;
+      const total = t.speeches.length;
+
+      document.getElementById('dialogue-counter').textContent = `Fala ${speechIdx + 1} de ${total}`;
+      document.getElementById('btn-prev-speech').disabled = speechIdx === 0;
+
+      // Indicadores de bolinhas
+      const dots = document.getElementById('speech-dots');
+      dots.innerHTML = '';
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('span');
+        dot.className = `speech-dot ${i === speechIdx ? 'active' : i < speechIdx ? 'read' : ''}`;
+        dots.appendChild(dot);
+      }
+
+      const isLast = speechIdx === total - 1;
+      const btnNext = document.getElementById('btn-next-speech');
+      const btnFix = document.getElementById('btn-start-fixation');
+      btnNext.classList.remove('hidden');
+      btnNext.textContent = 'Pular ▶';
+      btnFix.classList.add('hidden');
+
+      // Inicia efeito máquina de escrever
+      currentTokens = parseSpeechTokens(t.speeches[speechIdx]);
+      typedCount = 0;
+      isTyping = true;
+      const textEl = document.getElementById('dialogue-text');
+      const frame = document.getElementById('traveler-portrait-frame');
+      frame.classList.add('talking');
+      textEl.innerHTML = '';
+
+      typingTimer = setInterval(() => {
+        typedCount += 2; // velocidade agradável e fluida
+        if (typedCount % 8 === 0) playSFX('blip');
+
+        if (typedCount >= currentTokens.length) {
+          finishTypingInstant();
+        } else {
+          textEl.innerHTML = renderTokens(currentTokens, typedCount, true);
+        }
+      }, 22);
+    }
+
+    function finishTypingInstant() {
+      stopTyping();
+      const t = TRAVELERS[activeTravelerIdx];
+      const isLast = speechIdx === t.speeches.length - 1;
+      document.getElementById('dialogue-text').innerHTML = renderTokens(currentTokens, currentTokens.length, false);
+
+      const btnNext = document.getElementById('btn-next-speech');
+      const btnFix = document.getElementById('btn-start-fixation');
+
+      if (isLast) {
+        btnNext.classList.add('hidden');
+        btnFix.classList.remove('hidden');
+      } else {
+        btnNext.classList.remove('hidden');
+        btnNext.textContent = 'Avançar ▶';
+        btnFix.classList.add('hidden');
+      }
+    }
+
+    function handleDialogueBoxClick() {
+      if (isTyping) {
+        finishTypingInstant();
+      } else {
+        const t = TRAVELERS[activeTravelerIdx];
+        if (speechIdx < t.speeches.length - 1) {
+          playSFX('step');
+          showSpeech(speechIdx + 1);
+        }
+      }
+    }
+
+    function nextOrFinishTyping() {
+      if (isTyping) {
+        finishTypingInstant();
+      } else {
+        const t = TRAVELERS[activeTravelerIdx];
+        if (speechIdx < t.speeches.length - 1) {
+          playSFX('step');
+          showSpeech(speechIdx + 1);
+        }
+      }
+    }
+
+    function prevSpeech() {
+      if (speechIdx > 0) {
+        playSFX('step');
+        showSpeech(speechIdx - 1);
+      }
+    }
+
+    function backToDialogue() {
+      document.getElementById('traveler-quiz-panel').classList.add('hidden');
+      document.getElementById('traveler-dialogue-panel').classList.remove('hidden');
+      showSpeech(0);
+    }
+
+    /* =======================================================================
+       10. QUESTÕES DE FIXAÇÃO DOS VIAJANTES (UMA POR VEZ)
+       ======================================================================= */
+    function startTravelerQuiz() {
+      stopTyping();
+      playSFX('step');
+      tQuizIdx = 0;
+      document.getElementById('traveler-dialogue-panel').classList.add('hidden');
+      document.getElementById('traveler-quiz-panel').classList.remove('hidden');
+      renderTravelerQuestion();
+    }
+
+    function renderTravelerQuestion() {
+      const t = TRAVELERS[activeTravelerIdx];
+      const q = t.quiz[tQuizIdx];
+      tQuizAnswered = false;
+
+      document.getElementById('tquiz-counter').textContent = `Pergunta ${tQuizIdx + 1} de ${t.quiz.length}`;
+      const card = document.getElementById('tquiz-card');
+      card.classList.remove('quiz-card-anim');
+      void card.offsetWidth;
+      card.classList.add('quiz-card-anim');
+
+      document.getElementById('tquiz-question').textContent = q.question;
+      const optsWrap = document.getElementById('tquiz-options');
+      optsWrap.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+        btn.addEventListener('click', (ev) => answerTravelerQuiz(i, ev));
+        optsWrap.appendChild(btn);
+      });
+
+      document.getElementById('tquiz-feedback').className = 'hidden';
+      document.getElementById('tquiz-next-wrap').classList.add('hidden');
+      document.getElementById('btn-tquiz-next').textContent =
+        tQuizIdx === t.quiz.length - 1 ? 'Voltar ao Mapa ✨' : 'Próxima Pergunta ▶';
+    }
+
+    function answerTravelerQuiz(chosenIdx, ev) {
+      if (tQuizAnswered) return;
+      tQuizAnswered = true;
+
+      const t = TRAVELERS[activeTravelerIdx];
+      const q = t.quiz[tQuizIdx];
+      const ok = chosenIdx === q.correct;
+      const btns = document.querySelectorAll('#tquiz-options .option-btn');
+
+      btns.forEach((b, i) => {
+        b.disabled = true;
+        if (i === q.correct) b.classList.add('correct');
+        else if (i === chosenIdx && !ok) b.classList.add('wrong');
+        else b.classList.add('dimmed');
+      });
+
+      const fb = document.getElementById('tquiz-feedback');
+      if (ok) {
+        playSFX('correct');
+        const awardKey = `t${activeTravelerIdx}_q${tQuizIdx}`;
+        let xpTag = '';
+        if (!state.quizAwarded[awardKey]) {
+          state.quizAwarded[awardKey] = true;
+          const rect = ev.currentTarget.getBoundingClientRect();
+          addXP(25, rect.left + rect.width / 2, rect.top);
+          xpTag = ' (+25 XP!)';
+        }
+        fb.className = 'feedback-box ok';
+        fb.innerHTML = `<strong>✨ Excelente!${xpTag}</strong> ${q.explanation}`;
+      } else {
+        playSFX('wrong');
+        const card = document.getElementById('tquiz-card');
+        card.classList.add('screen-shake');
+        setTimeout(() => card.classList.remove('screen-shake'), 450);
+        fb.className = 'feedback-box err';
+        fb.innerHTML = `<strong>💡 Quase lá!</strong> ${q.explanation}`;
+      }
+
+      // Se for a última pergunta do viajante, já salva como concluído no Grimório
+      if (tQuizIdx === t.quiz.length - 1) {
+        if (!state.completedTravelers.includes(activeTravelerIdx)) {
+          state.completedTravelers.push(activeTravelerIdx);
+          saveState();
+          showToast(`${t.shortName} salvo no Grimório!`, '📖');
+        }
+      }
+
+      document.getElementById('tquiz-next-wrap').classList.remove('hidden');
+    }
+
+    function nextTravelerQuestion() {
+      const t = TRAVELERS[activeTravelerIdx];
+      if (tQuizIdx < t.quiz.length - 1) {
+        playSFX('step');
+        tQuizIdx++;
+        renderTravelerQuestion();
+      } else {
+        playSFX('step');
+        navigateTo('map');
+      }
+    }
+
+    /* =======================================================================
+       11. BATALHA CONTRA MALAKOR (ANIMAÇÕES DE DANO, PROJÉTEIS E PARTÍCULAS)
+       ======================================================================= */
+    function openBossIntro() {
+      document.getElementById('boss-intro-svg').innerHTML = SVGS.boss;
+      document.getElementById('boss-intro').classList.remove('hidden');
+      document.getElementById('boss-arena-wrap').classList.add('hidden');
+      document.getElementById('boss-result').classList.add('hidden');
+
+      const warn = document.getElementById('boss-warning-box');
+      if (state.completedTravelers.length < 5) {
+        warn.classList.remove('hidden');
+        document.getElementById('boss-warn-count').textContent = `${state.completedTravelers.length}/5`;
+      } else {
+        warn.classList.add('hidden');
+      }
+
+      navigateTo('boss');
+    }
+
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function buildBattleQuestions(isRematch) {
+      if (!isRematch && state.bossAttempts === 0) {
+        return BOSS_QUESTIONS.slice(0, 10);
+      }
+      // Revanche: inclui as 5 inéditas (10..14) + 5 priorizando temas errados
+      const unseen = BOSS_QUESTIONS.slice(10, 15);
+      const mainPool = BOSS_QUESTIONS.slice(0, 10);
+      const failedSet = new Set(state.lastFailedThemes || []);
+      const prio = shuffle(mainPool.filter((q) => failedSet.has(q.themeKey)));
+      const rest = shuffle(mainPool.filter((q) => !failedSet.has(q.themeKey)));
+      return shuffle([...unseen, ...[...prio, ...rest].slice(0, 5)]);
+    }
+
+    function startBossBattle(isRematch) {
+      playSFX('step');
+      battle = {
+        questions: buildBattleQuestions(isRematch),
+        idx: 0,
+        correct: 0,
+        wrongItems: [],
+        answered: false
+      };
+
+      document.getElementById('hero-sprite').innerHTML = SVGS.hero;
+      const bossSp = document.getElementById('boss-sprite');
+      bossSp.innerHTML = SVGS.boss;
+      bossSp.className = 'boss-sprite';
+
+      document.getElementById('boss-intro').classList.add('hidden');
+      document.getElementById('boss-result').classList.add('hidden');
+      document.getElementById('boss-arena-wrap').classList.remove('hidden');
+
+      updateBossBars();
+      renderBossQuestion();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function updateBossBars() {
+      const hp = Math.max(0, 100 - battle.correct * 10);
+      document.getElementById('boss-hp-fill').style.width = `${hp}%`;
+      document.getElementById('boss-hp-trail').style.width = `${hp}%`;
+      document.getElementById('boss-hp-label').textContent = `HP: ${hp} / 100`;
+
+      const answeredSoFar = battle.idx + (battle.answered ? 1 : 0);
+      const pct = answeredSoFar > 0 ? Math.round((battle.correct / answeredSoFar) * 100) : 0;
+      document.getElementById('boss-acc-badge').textContent = `Acertos: ${battle.correct} (${pct}%)`;
+    }
+
+    function renderBossQuestion() {
+      const q = battle.questions[battle.idx];
+      battle.answered = false;
+
+      document.getElementById('boss-q-badge').textContent = `Questão ${battle.idx + 1} / 10`;
+      document.getElementById('boss-topic-badge').textContent = q.topic;
+
+      const card = document.getElementById('boss-q-card');
+      card.classList.remove('quiz-card-anim');
+      void card.offsetWidth;
+      card.classList.add('quiz-card-anim');
+
+      document.getElementById('boss-q-text').textContent = q.question;
+      const opts = document.getElementById('boss-options');
+      opts.innerHTML = '';
+      const letters = ['A', 'B', 'C', 'D'];
+
+      q.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        btn.innerHTML = `<span class="option-letter">${letters[i]}</span><span>${opt}</span>`;
+        btn.addEventListener('click', () => handleBossAnswer(i));
+        opts.appendChild(btn);
+      });
+
+      document.getElementById('boss-feedback').className = 'hidden';
+      document.getElementById('boss-next-wrap').classList.add('hidden');
+      document.getElementById('btn-boss-next').textContent =
+        battle.idx === 9 ? 'Finalizar Batalha 🏆' : 'Próxima Questão ▶';
+    }
+
+    function spawnSparks(container, rightSide) {
+      const colors = ['#ffe184', '#ef4444', '#34d399', '#ffffff'];
+      for (let i = 0; i < 14; i++) {
+        const s = document.createElement('div');
+        s.className = 'spark';
+        s.style.background = colors[i % colors.length];
+        s.style.boxShadow = `0 0 8px ${colors[i % colors.length]}`;
+        s.style.left = rightSide ? '82%' : '16%';
+        s.style.top = '48%';
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 35 + Math.random() * 65;
+        s.style.setProperty('--tx', `${Math.cos(angle) * dist}px`);
+        s.style.setProperty('--ty', `${Math.sin(angle) * dist}px`);
+        container.appendChild(s);
+        setTimeout(() => s.remove(), 700);
+      }
+    }
+
+    function playHeroAttackAnim() {
+      const stage = document.getElementById('arena-stage');
+      const heroSp = document.getElementById('hero-sprite');
+      const bossSp = document.getElementById('boss-sprite');
+
+      playSFX('slash');
+
+      // 1. Avanço do herói + projétil mágico
+      heroSp.classList.remove('attacking');
+      void heroSp.offsetWidth;
+      heroSp.classList.add('attacking');
+
+      const proj = document.createElement('div');
+      proj.className = 'magic-projectile';
+      stage.appendChild(proj);
+      setTimeout(() => proj.remove(), 380);
+
+      // 2. Impacto no Malakor (corte, tremor violento, faíscas, número de dano gigante)
+      setTimeout(() => {
+        bossSp.classList.remove('hit');
+        void bossSp.offsetWidth;
+        bossSp.classList.add('hit');
+        setTimeout(() => bossSp.classList.remove('hit'), 560);
+
+        const slash = document.createElement('div');
+        slash.className = 'slash-effect';
+        slash.innerHTML = `<svg viewBox="0 0 100 100" width="100%" height="100%"><path d="M12 88 Q50 45 90 10" stroke="#ffe184" stroke-width="8" stroke-linecap="round" fill="none"/><path d="M20 82 Q52 48 84 18" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`;
+        stage.appendChild(slash);
+        setTimeout(() => slash.remove(), 400);
+
+        spawnSparks(stage, true);
+
+        const dmg = document.createElement('div');
+        dmg.className = 'damage-number boss-dmg';
+        dmg.textContent = battle.correct >= 4 ? 'CRÍTICO -10 HP! ⚡' : '-10 HP! ⚡';
+        stage.appendChild(dmg);
+        setTimeout(() => dmg.remove(), 1100);
+
+        updateBossBars();
+      }, 240);
+    }
+
+    function playBossCounterAnim() {
+      const stage = document.getElementById('arena-stage');
+      const heroSp = document.getElementById('hero-sprite');
+      const bossSp = document.getElementById('boss-sprite');
+      const arena = document.getElementById('battle-arena');
+      const vig = document.getElementById('damage-vignette');
+
+      playSFX('wrong');
+
+      // 1. Malakor brilha em roxo e lança onda sombria
+      bossSp.classList.remove('cast-dark');
+      void bossSp.offsetWidth;
+      bossSp.classList.add('cast-dark');
+      setTimeout(() => bossSp.classList.remove('cast-dark'), 580);
+
+      const wave = document.createElement('div');
+      wave.className = 'dark-wave';
+      stage.appendChild(wave);
+      setTimeout(() => wave.remove(), 420);
+
+      // 2. Impacto no herói + screen-shake + vinheta vermelha
+      setTimeout(() => {
+        heroSp.classList.remove('hurt');
+        void heroSp.offsetWidth;
+        heroSp.classList.add('hurt');
+        setTimeout(() => heroSp.classList.remove('hurt'), 500);
+
+        arena.classList.add('screen-shake');
+        setTimeout(() => arena.classList.remove('screen-shake'), 460);
+
+        vig.classList.add('flash');
+        setTimeout(() => vig.classList.remove('flash'), 260);
+
+        const txt = document.createElement('div');
+        txt.className = 'damage-number player-dmg';
+        txt.textContent = 'CONTRA-ATAQUE! 💥';
+        stage.appendChild(txt);
+        setTimeout(() => txt.remove(), 1100);
+
+        updateBossBars();
+      }, 240);
+    }
+
+    function handleBossAnswer(chosenIdx) {
+      if (battle.answered) return;
+      battle.answered = true;
+
+      const q = battle.questions[battle.idx];
+      const ok = chosenIdx === q.correct;
+      const btns = document.querySelectorAll('#boss-options .option-btn');
+
+      btns.forEach((b, i) => {
+        b.disabled = true;
+        if (i === q.correct) b.classList.add('correct');
+        else if (i === chosenIdx && !ok) b.classList.add('wrong');
+        else b.classList.add('dimmed');
+      });
+
+      const fb = document.getElementById('boss-feedback');
+      if (ok) {
+        battle.correct++;
+        playHeroAttackAnim();
+        fb.className = 'feedback-box ok';
+        fb.innerHTML = `<strong>⚔️ Golpe Certeiro! Malakor perdeu 10 HP!</strong> ${q.explanation}`;
+      } else {
+        battle.wrongItems.push({ question: q, chosenIdx });
+        playBossCounterAnim();
+        fb.className = 'feedback-box err';
+        fb.innerHTML = `<strong>💥 Bloqueado! Contra-ataque de Malakor!</strong> ${q.explanation}`;
+      }
+
+      document.getElementById('boss-next-wrap').classList.remove('hidden');
+    }
+
+    function nextBossQuestion() {
+      if (battle.idx < 9) {
+        playSFX('step');
+        battle.idx++;
+        renderBossQuestion();
+      } else {
+        concludeBossBattle();
+      }
+    }
+
+    function concludeBossBattle() {
+      state.bossAttempts++;
+      const score = battle.correct;
+      const pct = score * 10;
+      const victory = score >= 8; // > 70%
+
+      if (victory) {
+        // Animação de desintegração de Malakor antes de abrir a tela de vitória
+        const bossSp = document.getElementById('boss-sprite');
+        const stage = document.getElementById('arena-stage');
+        bossSp.classList.add('defeated');
+        spawnSparks(stage, true);
+        playSFX('victory');
+
+        setTimeout(() => showBossResult(true, score, pct), 850);
+      } else {
+        playSFX('wrong');
+        showBossResult(false, score, pct);
+      }
+    }
+
+    function showBossResult(victory, score, pct) {
+      document.getElementById('boss-arena-wrap').classList.add('hidden');
+      const res = document.getElementById('boss-result');
+      res.classList.remove('hidden');
+
+      if (victory) {
+        startConfetti();
+        let bonusTxt = '';
+        if (!state.artifact1) {
+          state.artifact1 = true;
+          addXP(200);
+          bonusTxt = '+200 XP de Vitória Épica!';
+        } else {
+          addXP(50);
+          bonusTxt = '+50 XP de Revisão Concluída!';
+        }
+        state.lastFailedThemes = [];
+        saveState();
+
+        res.innerHTML = `
+          <div class="rpg-panel-arcane view-enter" style="padding:32px 24px;text-align:center;">
+            <div style="width:96px;height:96px;margin:0 auto 14px;border-radius:50%;background:radial-gradient(circle,rgba(255,225,132,0.35),rgba(139,92,246,0.28));border:2.5px solid var(--gold-bright);display:flex;align-items:center;justify-content:center;font-size:3rem;box-shadow:0 0 40px rgba(139,92,246,0.65);">
+              🔮
+            </div>
+            <span class="badge badge-emerald">Vitória! • ${score}/10 (${pct}%)</span>
+            <h2 class="epic-title" style="font-size:clamp(1.5rem,3vw,2.2rem);color:var(--gold-bright);margin:10px 0 8px;">Malakor Foi Derrotado!</h2>
+            <p style="color:#cbd5e1;max-width:560px;margin:0 auto 22px;font-size:0.95rem;">
+              Você superou os 70% exigidos e purificou o Reino do Capítulo 16!
+            </p>
+
+            <div style="max-width:420px;margin:0 auto 24px;padding:18px;border-radius:14px;background:rgba(9,13,27,0.88);border:1.5px solid rgba(196,181,253,0.5);">
+              <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--arcane-bright);">Artefato Conquistado (1/6)</div>
+              <div class="epic-title" style="font-size:1.2rem;color:#fff;font-weight:700;margin:4px 0;">📜 O Pergaminho da Normalização</div>
+              <div style="font-size:0.8rem;color:#34d399;font-weight:700;">${bonusTxt}</div>
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;">
+              <button class="btn btn-gold" onclick="navigateTo('hub')">🗺️ Voltar ao Mapa dos Reinos</button>
+              <button class="btn btn-slate" onclick="openGrimoire()">📖 Abrir Grimório</button>
+            </div>
+          </div>
+        `;
+      } else {
+        const failedThemes = [...new Set(battle.wrongItems.map((w) => w.question.themeKey))];
+        state.lastFailedThemes = failedThemes;
+        saveState();
+
+        const helpers = TRAVELERS.filter((t) => failedThemes.includes(t.themeKey));
+
+        res.innerHTML = `
+          <div class="rpg-panel view-enter" style="padding:26px 22px;border-color:rgba(239,68,68,0.5);">
+            <div style="text-align:center;margin-bottom:22px;">
+              <div style="font-size:3rem;margin-bottom:6px;">🛡️</div>
+              <span class="badge badge-crimson">Recuo Estratégico • ${score}/10 (${pct}%)</span>
+              <h2 class="epic-title" style="font-size:1.55rem;color:#fff;margin:8px 0;">Faltou pouco para derrotar Malakor!</h2>
+              <p style="font-size:0.9rem;color:#cbd5e1;max-width:600px;margin:0 auto;">
+                Para conquistar o Artefato, você precisa acertar <strong>mais de 70%</strong> (pelo menos 8 de 10 questões). Revise exatamente onde perdeu terreno e volte mais forte!
+              </p>
+            </div>
+
+            <h3 class="epic-title" style="font-size:1.02rem;color:#fca5a5;margin-bottom:10px;">❌ Questões que você errou (${battle.wrongItems.length})</h3>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+              ${battle.wrongItems
+                .map(
+                  (w) => `
+                <div style="padding:14px;border-radius:12px;background:rgba(10,16,30,0.88);border:1px solid rgba(239,68,68,0.32);font-size:0.86rem;">
+                  <div style="color:var(--gold-bright);font-weight:700;margin-bottom:4px;">${w.question.topic}</div>
+                  <p style="color:#e2e8f0;margin-bottom:6px;">${w.question.question}</p>
+                  <p style="color:#34d399;margin-bottom:4px;"><strong>Correta:</strong> ${w.question.options[w.question.correct]}</p>
+                  <p style="color:#94a3b8;">${w.question.explanation}</p>
+                </div>`
+                )
+                .join('')}
+            </div>
+
+            <h3 class="epic-title" style="font-size:1.02rem;color:var(--gold-bright);margin-bottom:10px;">🧭 Viajantes Prontos para Revisar com Você</h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:22px;">
+              ${helpers
+                .map(
+                  (t) => `
+                <div style="padding:12px 14px;border-radius:12px;background:rgba(25,36,63,0.75);border:1px solid var(--gold-dim);">
+                  <div style="font-weight:700;color:#fff;font-size:0.88rem;margin-bottom:3px;">${t.icon} ${t.name}</div>
+                  <p style="font-size:0.76rem;color:var(--arcane-bright);margin-bottom:8px;">${t.subtitle}</p>
+                  <button class="btn btn-slate btn-sm" onclick="openTravelerScene(${t.id})">Reler falas de ${t.shortName} →</button>
+                </div>`
+                )
+                .join('')}
+            </div>
+
+            <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;">
+              <button class="btn btn-slate" onclick="navigateTo('map')">← Voltar ao Mapa</button>
+              <button class="btn btn-gold" onclick="startBossBattle(true)">⚔️ Enfrentar Malakor Novamente (com Inéditas)</button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    /* =======================================================================
+       12. CONFETES DE VITÓRIA (CANVAS RESPONSIVO)
+       ======================================================================= */
+    let confettiAnim = null;
+    function startConfetti() {
+      const canvas = document.getElementById('confetti-canvas');
+      canvas.classList.remove('hidden');
+      const ctx = canvas.getContext('2d');
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+
+      const pieces = [];
+      const colors = ['#ffe184', '#10b981', '#8b5cf6', '#60a5fa', '#f472b6'];
+      for (let i = 0; i < 110; i++) {
+        pieces.push({
+          x: Math.random() * canvas.width,
+          y: -20 - Math.random() * canvas.height * 0.6,
+          w: 6 + Math.random() * 6,
+          h: 4 + Math.random() * 6,
+          vx: (Math.random() - 0.5) * 3,
+          vy: 2.2 + Math.random() * 3.5,
+          rot: Math.random() * Math.PI * 2,
+          vrot: (Math.random() - 0.5) * 0.16,
+          color: colors[i % colors.length]
+        });
+      }
+
+      let frames = 0;
+      function loop() {
+        frames++;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach((p) => {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.rot += p.vrot;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        if (frames < 210) {
+          confettiAnim = requestAnimationFrame(loop);
+        } else {
+          stopConfetti();
+        }
+      }
+      confettiAnim = requestAnimationFrame(loop);
+    }
+
+    function stopConfetti() {
+      if (confettiAnim) cancelAnimationFrame(confettiAnim);
+      confettiAnim = null;
+      const canvas = document.getElementById('confetti-canvas');
+      if (canvas) canvas.classList.add('hidden');
+    }
+
+    /* =======================================================================
+       13. MODAIS (GRIMÓRIO E REINÍCIO)
+       ======================================================================= */
+    function openGrimoire() {
+      const body = document.getElementById('grimoire-body');
+      body.innerHTML = '';
+
+      if (state.completedTravelers.length === 0) {
+        body.innerHTML = `
+          <div style="text-align:center;padding:32px 12px;color:#94a3b8;">
+            <div style="font-size:2.6rem;margin-bottom:8px;">📜</div>
+            <p style="font-size:0.95rem;color:#e2e8f0;">Seu Grimório ainda está vazio.</p>
+            <p style="font-size:0.82rem;margin-top:4px;">Converse com os viajantes do Capítulo 16 e conclua o desafio de fixação para desbloquear os resumos aqui!</p>
+          </div>`;
+      } else {
+        TRAVELERS.forEach((t) => {
+          const unlocked = state.completedTravelers.includes(t.id);
+          const box = document.createElement('div');
+          box.style.cssText = `padding:16px;border-radius:14px;border:1px solid ${
+            unlocked ? 'var(--gold-dim)' : 'rgba(71,85,105,0.35)'
+          };background:${unlocked ? 'rgba(11,17,33,0.88)' : 'rgba(11,17,33,0.4)'};opacity:${unlocked ? 1 : 0.55};`;
+
+          if (!unlocked) {
+            box.innerHTML = `<div style="display:flex;align-items:center;gap:10px;"><span>🔒</span><div><strong style="color:#94a3b8;">${t.name}</strong><div style="font-size:0.76rem;color:#64748b;">Ainda não visitado no mapa</div></div></div>`;
+          } else {
+            box.innerHTML = `
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span style="font-size:1.5rem;">${t.icon}</span>
+                <div>
+                  <h3 class="epic-title" style="font-size:1rem;color:var(--gold-bright);">${t.name}</h3>
+                  <p style="font-size:0.76rem;color:var(--arcane-bright);">${t.subtitle}</p>
+                </div>
+              </div>
+              <ul style="padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:0.84rem;color:#cbd5e1;">
+                ${t.summaryPoints.map((pt) => `<li>${pt}</li>`).join('')}
+              </ul>
+            `;
+          }
+          body.appendChild(box);
+        });
+      }
+
+      document.getElementById('modal-grimoire').classList.remove('hidden');
+    }
+
+    function closeGrimoire() {
+      document.getElementById('modal-grimoire').classList.add('hidden');
+    }
+
+    function openResetModal() {
+      document.getElementById('modal-reset').classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+      document.getElementById('modal-reset').classList.add('hidden');
+    }
+
+    function confirmReset() {
+      state = { ...DEFAULT_STATE };
+      saveState();
+      closeResetModal();
+      navigateTo('hub');
+      showToast('Progresso reiniciado com sucesso!', '↺');
+    }
+
+    /* =======================================================================
+       14. INICIALIZAÇÃO NO WINDOW.ONLOAD
+       ======================================================================= */
+    window.onload = function () {
+      initBgParticles();
+      updateHUD();
+      renderHub();
+    };
+  </script>
+</body>
+</html>
