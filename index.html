@@ -1884,26 +1884,26 @@
         ],
         quiz: [
           {
-            question: 'No estudo de coorte sobre icterícia neonatal e escore de QI aos 5 anos, os pesquisadores desejam armazenar múltiplos exames seriados de bilirrubina e dezenas de ligações telefônicas para cada criança. Qual é a estrutura correta?',
+            question: 'Em um estudo de coorte pediátrico com múltiplas dosagens seriadas de bilirrubina por paciente, por que um arquivo plano tende a ser inadequado?',
             options: [
-              'Um arquivo plano em planilha eletrônica, adicionando dezenas de novas colunas para cada novo exame.',
-              'Um banco de dados relacional normalizado em tabelas "altas e magras" ligadas por IDsujeito (relação um para muitos).',
-              'Uma tabela única sem chave principal, ligando os exames pelo primeiro nome da criança.',
-              'Guardar os dados administrativos fora do banco de dados, em arquivos de texto soltos.'
+              'Porque uma única tabela com uma linha por sujeito não acomoda um número grande e variável de medidas repetidas.',
+              'Porque arquivos planos impedem o uso de chaves principais numéricas para identificar cada sujeito do estudo.',
+              'Porque softwares de planilhas eletrônicas não permitem armazenar variáveis contínuas junto a variáveis dicotômicas.',
+              'Porque tabelas únicas inviabilizam a exportação direta dos dados brutos para pacotes de análise estatística.'
             ],
-            correct: 1,
-            explanation: 'Medidas repetidas variáveis e dados administrativos exigem normalização em tabelas separadas ("altas e magras") conectadas à tabela de sujeitos por IDsujeito em relação um para muitos.'
+            correct: 0,
+            explanation: 'Um arquivo plano (tabela única bidimensional) funciona bem para estruturas simples, mas não acomoda um número grande e variável de medidas repetidas; nesses casos, usa-se um banco relacional normalizado (relação um para muitos).'
           },
           {
-            question: 'Qual é a função exata da "integridade referencial" em um banco de dados relacional?',
+            question: 'Qual situação exemplifica diretamente a atuação da integridade referencial em um banco de dados relacional?',
             options: [
-              'Restringir os valores do campo QI para o intervalo entre 40 e 200.',
-              'Fazer a entrada dupla de dados automaticamente.',
-              'Impedir a criação de exames/avaliações para um IDsujeito inexistente e evitar apagar um sujeito deixando registros vinculados órfãos.',
-              'Criptografar os backups armazenados fora da sede.'
+              'Bloquear a inclusão de um resultado laboratorial vinculado a um IDsujeito inexistente na tabela de sujeitos.',
+              'Impedir a digitação da data 31 de abril no campo de avaliação clínica por meio de validação automática.',
+              'Converter uma tabela larga com dados redundantes em múltiplas tabelas menores relacionadas entre si.',
+              'Ocultar o primeiro nome e a data de nascimento dos participantes durante a exportação de consultas em SQL.'
             ],
-            correct: 2,
-            explanation: 'A integridade referencial protege o vínculo entre tabelas, bloqueando registros órfãos tanto na inserção quanto na exclusão de sujeitos.'
+            correct: 0,
+            explanation: 'Integridade referencial impede registros "órfãos" (criar exame/avaliação para sujeito inexistente ou apagar sujeito mantendo suas avaliações). Rejeitar 31/04 é regra de validação; dividir tabelas é normalização.'
           }
         ]
       },
@@ -1929,26 +1929,26 @@
         ],
         quiz: [
           {
-            question: 'Por que o dicionário de dados é chamado de "metadados" e o que são as "verificações de edição"?',
+            question: 'No modo design de um banco de dados clínico, qual é a definição exata de domínio de um campo?',
             options: [
-              'Metadados são apenas variáveis de texto livre; verificações de edição são gráficos de análise.',
-              'É uma tabela com informações sobre o próprio banco de dados; verificações de edição são regras de validação que restringem cada campo ao seu domínio permitido.',
-              'Metadados substituem as tabelas de sujeitos; verificações de edição fazem o backup automático.',
-              'É o manual de privacidade do HIPAA; verificações de edição criptografam o servidor.'
+              'O conjunto ou a faixa de valores permitidos para aquela variável, garantindo proteção contra erros de entrada.',
+              'O rótulo descritivo extenso exibido nos formulários de coleta e nos relatórios finais no lugar do código curto.',
+              'A chave principal que vincula a tabela de exames laboratoriais aos dados demográficos na tabela de sujeitos.',
+              'O conjunto de padrões internacionais criado por agências como CDISC e NINDS para padronizar estudos clínicos.'
             ],
-            correct: 1,
-            explanation: 'O dicionário de dados descreve o próprio banco (metadados), e as verificações de edição (regras de validação) impedem entradas fora do domínio, como QI fora de 40-200 ou data "31 de abril".'
+            correct: 0,
+            explanation: 'O domínio define os valores permitidos para o campo (ex.: "M" ou "F" para Sexo; inteiros de 40 a 200 para QI), implementado por regras de validação ("verificações de edição").'
           },
           {
-            question: 'Qual nome de variável segue corretamente as boas práticas do Capítulo 16?',
+            question: 'Ao definir nomes de variáveis para um banco de dados segundo as boas práticas do Capítulo 16, qual opção é a mais adequada?',
             options: [
-              'Questao1',
-              'Já Fumou Cigarros?',
-              'JaFumou ou ja_fumou',
-              'Q1 (Item A)'
+              'JaFumouCigarros — curta, autoexplicativa, sem espaços e descrevendo o conteúdo em vez da posição.',
+              'Questao_14A — padronizada pela ordem do formulário em papel para facilitar a conferência na digitação.',
+              'Já Fumou Cigarros? — descritiva e idêntica à pergunta original para evitar ambiguidade nos relatórios.',
+              'TabagismoAtualOuPrevioDeCigarrosIndustrializados — longa o suficiente para dispensar um dicionário de dados.'
             ],
-            correct: 2,
-            explanation: 'Os nomes devem descrever o conteúdo (não a posição como Questao1), evitar espaços e caracteres especiais e usar InterCaps (JaFumou) ou underline (ja_fumou).'
+            correct: 0,
+            explanation: 'Nomes de variáveis devem ser curtos para digitar e autoexplicativos, sem espaços ou caracteres especiais (usando InterCaps ou underline), descrevendo o campo e não o número da questão.'
           }
         ]
       },
@@ -1974,26 +1974,26 @@
         ],
         quiz: [
           {
-            question: 'Por que o Capítulo 16 desaconselha questões "Todas as alternativas que se aplicam" (checkboxes) e recomenda codificar Sim/Não como 0 e 1?',
+            question: 'Por que os autores desaconselham questões do tipo "Marque todas as alternativas que se aplicam" em formulários clínicos?',
             options: [
-              'Porque checkboxes não existem em formulários on-line e 0/1 ocupam menos memória.',
-              'Porque um checkbox não marcado é ambíguo ("não se aplica" vs. "não respondido"), e com 0 = não e 1 = sim a média da variável corresponde à proporção do atributo.',
-              'Porque menus drop-down são ideais para impressão em papel e 0/1 impedem o cálculo de proporções.',
-              'Porque checkboxes violam a regra de integridade referencial do SQL.'
+              'Porque uma caixa desmarcada gera ambiguidade entre o item não se aplicar ao sujeito e ter ficado sem resposta.',
+              'Porque formulários eletrônicos não permitem converter caixas de seleção em campos dicotômicos na tabela final.',
+              'Porque esse formato exige obrigatoriamente o uso de botões de rádio, que ocupam espaço excessivo na tela.',
+              'Porque respostas múltiplas impedem a aplicação de regras de validação de domínio durante a coleta eletrônica.'
             ],
-            correct: 1,
-            explanation: 'Sem resposta explícita Sim/Não, um item desmarcado pode ser "não se aplica" ou dado faltante. Com 0 = ausente e 1 = presente, a média estatística é diretamente a proporção.'
+            correct: 0,
+            explanation: 'Em "marque todas que se aplicam", um checkbox em branco não diferencia "não" de "não respondido". Por isso, prefere-se pedir resposta explícita sim/não (1/0) para cada item.'
           },
           {
-            question: 'Como são chamados os dados já eletrônicos (como resultados de laboratório, DEXA e Holter) importados em lote para o banco, e qual é uma limitação do REDCap citada no Capítulo 16?',
+            question: 'Em um ensaio clínico, resultados do sistema laboratorial e medições de Holter enviados em lotes para o banco de dados são classificados como:',
             options: [
-              'Dados front-end; o REDCap é pago e exclusivo para grandes indústrias farmacêuticas.',
-              'Dados não CRF (batch-uploaded); o REDCap é estruturado em tabela única com número fixo de eventos, sendo limitado para medidas repetidas variáveis e consultas sofisticadas.',
-              'Metadados brutos; o REDCap não permite exportar dados para pacotes estatísticos.',
-              'Arquivos planos; o REDCap não possui registro de auditoria.'
+              'Dados não CRF, importados diretamente em formato eletrônico para evitar erros e retrabalho de transcrição.',
+              'Formulários eCRF, coletados diretamente em tela com lógica de pulos e validação imediata durante a visita.',
+              'Metadados estruturais, armazenados no dicionário de dados para orientar a posterior limpeza das tabelas.',
+              'Arquivos planos distribuídos, mantidos em planilhas isoladas antes da aplicação de entrada dupla de dados.'
             ],
-            correct: 1,
-            explanation: 'Importações eletrônicas em lote são chamadas de "dados não CRF". O REDCap é gratuito/acadêmico, mas limitado para grande número variável de medidas repetidas e consultas complexas.'
+            correct: 0,
+            explanation: 'Informações já eletrônicas (laboratório, DEXA, Holter, demográficos hospitalares) importadas em lotes (batch-uploaded) são chamadas de dados não CRF.'
           }
         ]
       },
@@ -2019,26 +2019,26 @@
         ],
         quiz: [
           {
-            question: 'Uma consulta SQL encontrou uma criança de 5 anos com peso de 35 kg e estatura de 100 cm (IMC = 35,0; percentil 100), embora ambos os números tenham passado pelas regras individuais de validação. Que problema foi detectado?',
+            question: 'Qual é a principal limitação estrutural do REDCap destacada no Capítulo 16 em comparação a plataformas como MediData RAVE?',
             options: [
-              'Falha na integridade referencial por chave ausente.',
-              'Um outlier e uma inconsistência no cruzamento de campos, revelando a necessidade de checar documentos-fonte.',
-              'Erro de nomeação de variável sem InterCaps.',
-              'Falta de backup fora da sede.'
+              'Basear-se em número fixo de eventos por sujeito, sem acompanhar bem um volume grande e variável de medidas repetidas.',
+              'Exigir conhecimento avançado de programação em SQL para exportar o banco de dados para pacotes estatísticos.',
+              'Ser restrito a ensaios corporativos da indústria farmacêutica, com hospedagem obrigatória em servidor privado pago.',
+              'Não permitir a criação de formulários de entrada de dados na tela nem oferecer repositório de instrumentos prontos.'
             ],
-            correct: 1,
-            explanation: 'Sistemas muitas vezes não validam o cruzamento entre campos; consultas que calculam IMC e percentis expõem outliers e combinações biologicamente implausíveis.'
+            correct: 0,
+            explanation: 'O REDCap é gratuito para uso acadêmico (hospedado na instituição) e facilita a exportação, mas usa tabela única com número fixo de eventos, sendo limitado para muitas medidas repetidas variáveis e validações/consultas sofisticadas.'
           },
           {
-            question: 'Sobre a limpeza e análise dos dados no Capítulo 16, qual alternativa está CORRETA?',
+            question: 'Sobre a estrutura e os resultados de uma consulta (query) em um banco de dados relacional, assinale a afirmação correta:',
             options: [
-              'Em formulários em papel, erros devem ser apagados com corretivo líquido para não sujar a folha.',
-              'O banco de dados nunca deve ser congelado para permitir alterações após a publicação.',
-              'A limpeza é iterativa, prioriza variáveis críticas (como o desfecho), compara médias/medianas entre centros para achar erros sistemáticos e termina com o banco declarado final/congelado.',
-              'O pré-teste com dados fictícios só é feito após o término da coleta real.'
+              'Pode unir tabelas, filtrar registros e calcular variáveis derivadas, gerando uma saída em formato de tabela.',
+              'Altera permanentemente os valores brutos das tabelas back-end para substituir campos faltantes antes da análise.',
+              'Exige obrigatoriamente a inclusão de identificadores pessoais na saída para manter a integridade referencial.',
+              'Opera exclusivamente sobre uma única tabela por vez, exigindo exportação prévia para unir dados demográficos e exames.'
             ],
-            correct: 2,
-            explanation: 'A limpeza prioriza o desfecho, compara centros/investigadores, registra mudanças em papel com tinta vermelha/data/assinatura e finaliza com o congelamento do banco.'
+            correct: 0,
+            explanation: 'Um princípio do modelo relacional é que operações sobre tabelas geram resultados semelhantes a tabelas, podendo unir múltiplas tabelas, filtrar critérios, calcular valores (IMC, percentis) e omitir identificadores pessoais.'
           }
         ]
       },
@@ -2064,26 +2064,26 @@
         ],
         quiz: [
           {
-            question: 'Qual prática abaixo VIOLA gravemente as regras de confidencialidade e segurança do Capítulo 16?',
+            question: 'Uma criança de 5 anos apresenta peso de 30 kg e estatura de 100 cm no banco. Ambos estão na faixa permitida do domínio. Que tipo de erro essa situação ilustra?',
             options: [
-              'Criar um IDsujeito usando as iniciais do paciente + ano de nascimento (ex.: "JPS_1988") ou o número do prontuário.',
-              'Guardar identificadores pessoais em tabela separada em servidor seguro com login e senha individuais.',
-              'Configurar perfis de usuário no REDCap/QuesGen para impedir a exportação de nomes.',
-              'Apagar todos os campos de identificação pessoal antes de enviar o banco para análise externa.'
+              'Inconsistência entre variáveis que escapa às regras de domínio isoladas e requer validação com cruzamento de campos.',
+              'Violação de integridade referencial causada pela duplicação do identificador único na tabela de avaliações.',
+              'Erro de tipo de dado que seria automaticamente bloqueado pelo dicionário de dados durante a digitação.',
+              'Falha de codificação dicotômica resultante da mistura entre valores ausentes e respostas de texto livre.'
             ],
             correct: 0,
-            explanation: 'O IDsujeito não deve ter nenhum significado externo ao banco — jamais incorporar nome, iniciais, data de nascimento ou número de prontuário.'
+            explanation: 'Peso e estatura isolados estão dentro do domínio aceitável, mas são biologicamente inconsistentes entre si; esse problema exige consultas ou validação com cruzamento de campos.'
           },
           {
-            question: 'O que a trilha de auditoria deve registrar e quais itens compõem o arquivamento final do estudo?',
+            question: 'Qual prática atende adequadamente às recomendações de segurança e preservação de um banco de dados clínico?',
             options: [
-              'Auditoria registra apenas a data final; arquiva-se somente o artigo publicado.',
-              'Auditoria registra quem modificou, quando e qual alteração foi feita; arquivam-se os dados originais, o dicionário de dados, o banco final e as análises.',
-              'Auditoria registra apenas senhas dos usuários; arquiva-se somente a tabela de nomes.',
-              'Auditoria é opcional em ensaios de medicamentos; backups nunca precisam ser testados.'
+              'Realizar backups regulares armazenados fora da sede e testar periodicamente a restauração dessas cópias.',
+              'Compor o IDsujeito com as iniciais e a data de nascimento do paciente para facilitar a conferência de erros.',
+              'Permitir que toda a equipe utilize o mesmo login institucional para simplificar o registro de auditoria.',
+              'Descartar os dados originais e o dicionário após congelar o banco final para reduzir riscos de confidencialidade.'
             ],
-            correct: 1,
-            explanation: 'A auditoria documenta quem, quando e o que mudou. No encerramento, arquivam-se dados originais, dicionário de dados, banco final e análises.'
+            correct: 0,
+            explanation: 'Backups devem ser regulares, guardados fora da sede e testados por restauração. IDsujeito não deve ter significado externo, acessos devem ser individuais e dados originais + dicionário devem ser arquivados ao final.'
           }
         ]
       }
@@ -2094,213 +2094,213 @@
       {
         id: 0,
         themeKey: 'tabelas',
-        topic: 'Normalização e Tabelas',
-        question: 'Um estudo clínico acompanhará 300 pacientes com número variável de exames laboratoriais, uso de medicamentos e dezenas de ligações telefônicas administrativas. Segundo o Capítulo 16, qual arquitetura de banco de dados deve ser adotada?',
+        topic: 'Tabelas e Chaves',
+        question: 'Em um banco de dados de pesquisa clínica com tabelas separadas para sujeitos, exames físicos e ligações telefônicas, qual característica deve ter a chave principal da tabela de sujeitos?',
         options: [
-          'Um arquivo plano em planilha eletrônica com 1 linha por sujeito e novas colunas adicionadas a cada novo exame.',
-          'Um banco relacional normalizado com múltiplas tabelas "altas e magras" (Sujeitos, Exames, Ligações) vinculadas por IDsujeito em relação um para muitos.',
-          'Uma tabela única repetindo nome e data de nascimento em cada linha de exame para facilitar a leitura.',
-          'Excluir os dados administrativos do banco, pois bancos clínicos não devem armazenar agendas nem ligações.'
+          'Ser um número único sem significado fora do banco, desvinculando os dados clínicos de identificadores pessoais.',
+          'Combinar o número do prontuário hospitalar com o código do centro para evitar duplicações em estudos multicêntricos.',
+          'Repetir-se em cada linha da própria tabela de sujeitos sempre que o participante comparecer a uma nova consulta.',
+          'Permanecer restrita à tabela de sujeitos, sem constar como campo de ligação nas tabelas de exames e ligações.'
         ],
-        correct: 1,
-        explanation: 'A normalização converte tabelas "baixas e gordas" em tabelas "altas e magras" conectadas por IDsujeito (relação um para muitos), acomodando medidas repetidas variáveis e dados administrativos sem redundância.'
+        correct: 0,
+        explanation: 'A chave principal (IDsujeito) é única na tabela de sujeitos, não deve ter significado externo (sem nome, iniciais, DN ou prontuário) e aparece nas demais tabelas para estabelecer a relação um para muitos.'
       },
       {
         id: 1,
         themeKey: 'tabelas',
-        topic: 'Integridade Referencial',
-        question: 'Ao tentar cadastrar um exame laboratorial para o IDsujeito "8841" — que ainda não foi inserido na tabela Sujeitos — o sistema bloqueia a operação. Que recurso do banco de dados relacional atuou?',
+        topic: 'Normalização',
+        question: 'Um pesquisador mantém todas as visitas, hemogramas e ligações de 200 pacientes em uma única planilha com 180 colunas. Ao migrar para um banco relacional normalizado, o que ocorre?',
         options: [
-          'Lógica de pulos (skip logic).',
-          'Validação com cruzamento de campos.',
-          'Integridade referencial.',
-          'Entrada dupla de dados.'
+          'A tabela "baixa e gorda" é convertida em tabelas "altas e magras", reduzindo redundância e inconsistências.',
+          'As tabelas são unificadas em um arquivo plano expandido, eliminando a necessidade de chaves de identificação.',
+          'Os campos de texto livre passam a ser aceitos automaticamente sem necessidade de definir tipos de dados ou domínios.',
+          'Cada aferição laboratorial passa a ocupar uma nova coluna na tabela de sujeitos, preservando uma linha por paciente.'
         ],
-        correct: 2,
-        explanation: 'A integridade referencial impede a criação de registros vinculados (exames, avaliações, ligações) para sujeitos inexistentes na tabela principal.'
+        correct: 0,
+        explanation: 'Normalização é justamente transformar tabelas "baixas e gordas" em várias tabelas "altas e magras" relacionadas, eliminando redundância e inconsistências.'
       },
       {
         id: 2,
         themeKey: 'dicionario',
-        topic: 'Dicionário de Dados e Domínio',
-        question: 'No modo design de um banco de dados clínico, o campo "Sexo" aceita apenas "M" ou "F", "QI" aceita inteiros entre 40 e 200 e o campo de data rejeita "31 de abril". Esses mecanismos correspondem a:',
+        topic: 'Dicionário de Dados / Metadados',
+        question: 'Por que o dicionário de dados de um estudo clínico é frequentemente denominado "metadados"?',
         options: [
-          'Definição de domínio e regras de validação ("verificações de edição") no dicionário de dados.',
-          'Normalização de tabelas e chave estrangeira.',
-          'Importação de dados não CRF em lote.',
-          'Criptografia HIPAA e backup fora da sede.'
+          'Porque consiste em uma tabela de informações sobre o próprio banco, descrevendo cada campo, tipo e domínio.',
+          'Porque reúne apenas as variáveis derivadas criadas no pacote estatístico após a exportação dos dados brutos.',
+          'Porque armazena separadamente os identificadores pessoais protegidos pelo HIPAA em um servidor criptografado.',
+          'Porque contém exclusivamente o histórico cronológico de quem alterou cada registro durante a coleta de dados.'
         ],
         correct: 0,
-        explanation: 'O dicionário de dados (metadados) especifica o domínio (faixa permitida) de cada campo e aplica regras de validação ("verificações de edição") para barrar entradas impossíveis.'
+        explanation: 'O dicionário de dados é uma tabela sobre o próprio banco (linhas = campos; colunas = nome, tipo, descrição e faixa de valores permitidos), sendo por isso chamado de metadados.'
       },
       {
         id: 3,
         themeKey: 'dicionario',
-        topic: 'Elementos Comuns (CDISC / NINDS)',
-        question: 'Por que organizações como NINDS, NCI, FDA, EMA e CDISC desenvolvem "elementos comuns para os dados" na pesquisa clínica?',
+        topic: 'Elementos Comuns de Dados',
+        question: 'Qual é o principal objetivo das iniciativas de elementos comuns de dados promovidas por organizações como CDISC, NINDS e NCI?',
         options: [
-          'Para obrigar todos os pesquisadores a usar planilhas Excel em vez de bancos SQL.',
-          'Para padronizar estruturas, dicionários e CRFs, evitando "reinventar a roda" e permitindo compartilhar e combinar dados de diferentes estudos.',
-          'Para dispensar o uso de formulários eletrônicos (eCRFs) em ensaios multicêntricos.',
-          'Para substituir o cálculo de variáveis derivadas na análise estatística.'
+          'Padronizar registros, campos e CRFs em uma área clínica para evitar retrabalho e permitir combinar dados entre estudos.',
+          'Substituir pacotes estatísticos tradicionais por plataformas gratuitas hospedadas nas instituições dos pesquisadores.',
+          'Tornar obrigatória a entrada dupla de dados em 100% dos formulários preenchidos em ensaios acadêmicos.',
+          'Eliminar a necessidade de aprovação regulatória do FDA ao unificar a linguagem SQL de todos os bancos relacionais.'
         ],
-        correct: 1,
-        explanation: 'Os elementos comuns padronizam nomes, definições e instrumentos de coleta, eliminando retrabalho e permitindo combinar dados de estudos distintos na mesma área clínica.'
+        correct: 0,
+        explanation: 'Padronizar estruturas, nomes/definições e CRFs evita "reinventar a roda" e permite compartilhar e combinar dados de diferentes estudos da mesma área.'
       },
       {
         id: 4,
         themeKey: 'entrada',
-        topic: 'Codificação e Formulários (eCRF)',
-        question: 'Ao desenhar um eCRF que também poderá ser impresso em papel em caso de queda de energia, qual escolha de design está CORRETA segundo o Capítulo 16?',
+        topic: 'Entrada Dupla de Dados',
+        question: 'Ao transcrever formulários CRF em papel por teclado, a entrada dupla reduz erros, mas dobra o tempo gasto. Qual alternativa pragmática o Capítulo 16 sugere?',
         options: [
-          'Usar menus drop-down em todas as questões, pois exibem todas as opções quando impressos em papel.',
-          'Usar questões "Marque todas as alternativas que se aplicam" (checkboxes) para evitar ambiguidade.',
-          'Preferir respostas codificadas exaustivas (com "outro") e mutuamente exclusivas em grupos de opções/lista de escolhas, e itens Sim/Não codificados como 0 (não) e 1 (sim).',
-          'Permitir texto livre em todas as variáveis categóricas para acelerar a análise estatística.'
+          'Aplicar entrada dupla em uma amostra aleatória e avaliar se a taxa de erros é baixa o bastante para dispensá-la no restante.',
+          'Adiar toda a transcrição para o final do estudo, quando os dados já estiverem consolidados e revisados em papel.',
+          'Substituir a conferência com os formulários originais por uma consulta SQL que exclua automaticamente valores extremos.',
+          'Permitir respostas em texto livre nos campos críticos para que o digitador possa corrigir divergências durante a leitura.'
         ],
-        correct: 2,
-        explanation: 'Drop-downs não mostram opções no papel; checkboxes geram ambiguidade ("não se aplica" vs "não respondido"). Grupos de opções/listas servem para impressão, e Sim/Não em 0/1 faz a média equivaler à proporção.'
+        correct: 0,
+        explanation: 'Fazer entrada dupla em uma amostra aleatória permite estimar a taxa de erros; se ela for aceitavelmente baixa, duplicar todo o restante provavelmente não compensa o custo e o tempo.'
       },
       {
         id: 5,
         themeKey: 'entrada',
-        topic: 'Softwares e REDCap',
-        question: 'Em relação às plataformas on-line de gerenciamento de dados discutidas no Capítulo 16, qual afirmação sobre o REDCap é CORRETA?',
+        topic: 'Formulários e Impressão',
+        question: 'Uma equipe deseja usar o mesmo formulário tanto para captura eletrônica na tela quanto para impressão em papel quando faltar internet. Qual elemento deve ser evitado?',
         options: [
-          'É uma ferramenta corporativa paga, recomendada apenas para a indústria farmacêutica.',
-          'É gratuito para uso acadêmico ("faça você mesmo"), mas estruturado em tabela única com número fixo de eventos, sendo limitado para grande número variável de medidas repetidas e consultas complexas.',
-          'Substitui completamente plataformas como MediData RAVE e Oracle InForm em qualquer ensaio com centenas de exames repetidos variáveis.',
-          'Não permite criar questionários on-line nem exportar dados para pacotes estatísticos.'
+          'Lista drop-down, pois embora economize espaço na tela, suas opções ficam ocultas quando o formulário é impresso.',
+          'Grupo de opções com botões de rádio, pois exige múltiplas colunas dicotômicas na tabela de dados back-end.',
+          'Lista de escolhas sempre visível, pois impede a definição de opções mutuamente exclusivas e coletivamente exaustivas.',
+          'Opção "outro" ao final da lista, pois viola o princípio da exclusividade mútua em variáveis categóricas codificadas.'
         ],
-        correct: 1,
-        explanation: 'O REDCap é excelente para uso acadêmico, mas o livro aponta sua limitação para medidas repetidas muito variáveis e validações/consultas sofisticadas, cenários em que QuesGen, MediData RAVE ou Oracle InForm se destacam.'
+        correct: 0,
+        explanation: 'A lista drop-down economiza espaço na tela, mas não funciona bem impressa em papel porque as opções não ficam visíveis; lista de escolhas e grupos de opções são adequados para impressão.'
       },
       {
         id: 6,
-        themeKey: 'consultas',
-        topic: 'Consultas SQL e Cruzamento de Campos',
-        question: 'Uma consulta SQL filtrou meninos examinados em fevereiro, calculou idade em meses, IMC e percentis, e revelou um participante de 5 anos com 35 kg e 100 cm (IMC 35,0; percentil 100). O que esse caso demonstra?',
+        themeKey: 'entrada',
+        topic: 'Codificação Dicotômica',
+        question: 'Ao codificar uma variável dicotômica (como ocorrência de icterícia neonatal) com 0 para ausente e 1 para presente, qual vantagem analítica direta se obtém?',
         options: [
-          'Que valores podem passar pelas regras de validação de campo único e ainda assim ser outliers ou inconsistentes no cruzamento de campos, exigindo consultas de monitoramento.',
-          'Que o SQL não consegue realizar cálculos derivados nem unir tabelas.',
-          'Que valores extremos devem ser deletados automaticamente sem conferir os documentos-fonte.',
-          'Que o banco de dados precisa incluir o nome completo do sujeito na consulta para exportar ao pacote estatístico.'
+          'O valor médio calculado para a variável pode ser interpretado diretamente como a proporção do atributo na amostra.',
+          'O software estatístico reconhece automaticamente qualquer célula vazia como valor zero durante as análises.',
+          'A variável passa a admitir respostas múltiplas não excludentes dentro de uma única coluna da tabela de dados.',
+          'O banco de dados dispensa regras de validação de domínio, já que números inteiros não geram outliers.'
         ],
         correct: 0,
-        explanation: 'Muitos sistemas não fazem validação com cruzamento de campos; consultas SQL são indispensáveis para detectar outliers e inconsistências entre variáveis (como peso vs. estatura).'
+        explanation: 'Codificando 0 = não/ausente e 1 = sim/presente, a média aritmética da coluna corresponde diretamente à proporção de indivíduos com o atributo presente.'
       },
       {
         id: 7,
         themeKey: 'consultas',
-        topic: 'Pré-teste e Comparação entre Centros',
-        question: 'Antes de iniciar a coleta de um ensaio clínico submetido ao FDA (21 CFR 11), e durante a coleta em múltiplos centros, quais duas práticas são recomendadas pelo Capítulo 16?',
+        topic: 'Front-end vs Back-end',
+        question: 'Em um sistema de gerenciamento de dados clínicos, como se diferenciam corretamente o back-end e o front-end?',
         options: [
-          'Dispensar testes prévios e comparar apenas o número de páginas impressas por centro.',
-          'Pré-testar todo o sistema com dados fictícios antes da coleta e comparar médias e medianas entre investigadores/centros para detectar erros sistemáticos.',
-          'Congelar o banco antes de corrigir o desfecho e excluir qualquer centro com média diferente.',
-          'Usar texto livre para todas as medidas contínuas e evitar variáveis derivadas.'
+          'O back-end corresponde às tabelas de dados em si, enquanto o front-end reúne os formulários de entrada, visualização e edição.',
+          'O back-end é a camada de consultas SQL para análise, enquanto o front-end corresponde ao arquivo de backup fora da sede.',
+          'O back-end armazena os metadados do dicionário, enquanto o front-end guarda os dados demográficos criptografados.',
+          'O back-end representa os dados importados não CRF, enquanto o front-end engloba apenas os formulários transcritos de papel.'
         ],
-        correct: 1,
-        explanation: 'O pré-teste com dados fictícios é exigência regulatória (21 CFR 11), e comparar médias/medianas entre centros e investigadores revela vieses ou diferenças sistemáticas de medição.'
+        correct: 0,
+        explanation: 'O back-end consiste nas tabelas de dados em si; o front-end ("interface") consiste nos formulários na tela usados para inserir, visualizar e editar os dados.'
       },
       {
         id: 8,
         themeKey: 'seguranca',
-        topic: 'Confidencialidade e HIPAA',
-        question: 'Qual conduta garante corretamente a confidencialidade dos participantes (HIPAA Privacy Rule e dever ético/legal) ao gerenciar e compartilhar um banco de dados clínico?',
+        topic: 'Limpeza, Outliers e Multicêntricos',
+        question: 'Em um estudo multicêntrico, a equipe compara médias e medianas de pressão arterial entre os centros participantes e nota diferenças substanciais. O que isso sugere?',
         options: [
-          'Usar o número do prontuário hospitalar como IDsujeito, pois prontuários são códigos numéricos.',
-          'Atribuir um IDsujeito sem significado externo, guardar identificadores pessoais em tabela separada em servidor seguro com login/senha individuais e removê-los antes de compartilhar.',
-          'Usar uma senha única para toda a equipe de pesquisa para facilitar o acesso ao servidor.',
-          'Codificar o IDsujeito com as iniciais e a data de nascimento do paciente para evitar trocas.'
+          'Possíveis diferenças sistemáticas na forma de medição ou no processo de coleta de dados entre investigadores ou centros.',
+          'Presença inevitável de valores fora do domínio permitido que não foram bloqueados pela captura eletrônica.',
+          'Necessidade imediata de congelar o banco de dados para impedir novas edições antes da análise estatística final.',
+          'Que a limpeza de dados deve priorizar variáveis administrativas, como datas de visita, em vez da variável de desfecho.'
         ],
-        correct: 1,
-        explanation: 'O IDsujeito nunca deve conter nome, iniciais, data de nascimento ou nº de prontuário. Identificadores ficam restritos em servidor seguro com credenciais individuais e são removidos antes do compartilhamento.'
+        correct: 0,
+        explanation: 'Diferenças substanciais de médias e medianas entre centros ou investigadores apontam diferenças sistemáticas na medição ou na coleta. Além disso, a limpeza prioriza variáveis-chave como o desfecho.'
       },
       {
         id: 9,
         themeKey: 'seguranca',
-        topic: 'Auditoria e Backups',
-        question: 'Em ensaios clínicos de novos medicamentos, quais informações a trilha de auditoria deve registrar e qual prática garante que os backups realmente funcionem?',
+        topic: 'Pré-teste, Auditoria e Correções',
+        question: 'Em um ensaio clínico com submissão ao FDA, qual combinação de práticas atende às exigências regulatórias (como 21 CFR 11) descritas no capítulo?',
         options: [
-          'Apenas o nome do coordenador; salvar o backup em uma pasta no mesmo computador.',
-          'Quem modificou, quando modificou e qual alteração foi feita; armazenar backups regularmente fora da sede e testá-los periodicamente mediante restauração.',
-          'Apenas o horário de login; fazer backup uma única vez ao encerrar o estudo.',
-          'Apenas alterações nas datas de visita; imprimir o banco inteiro toda semana.'
+          'Pré-testar todo o sistema com dados fictícios e manter registro de auditoria automático de todas as entradas e edições.',
+          'Apagar o registro de alterações após a correção de cada erro e manter apenas a versão final congelada do banco.',
+          'Permitir edições em documentos-fonte em papel com corretivo branco, desde que os valores no sistema sejam atualizados.',
+          'Usar planilhas eletrônicas em arquivo plano sem front-end para simplificar a rastreabilidade das alterações feitas.'
         ],
-        correct: 1,
-        explanation: 'A auditoria registra quem, quando e qual modificação foi feita. Backups regulares devem ficar fora da sede e ser testados periodicamente por meio de restauração.'
+        correct: 0,
+        explanation: 'O 21 CFR 11 exige pré-testar o sistema (tabelas, formulários e consultas) com dados fictícios e manter registro de auditoria (quem, quando e o que mudou). Em papel, correções são assinaladas (ex.: tinta vermelha), datadas e assinadas.'
       },
       // --- 5 Questões Inéditas da Reserva (para revanches) ---
       {
         id: 10,
-        themeKey: 'tabelas',
-        topic: 'Estrutura Tabular (Inédita)',
-        question: 'Sobre a estrutura básica dos bancos de dados clínicos no Capítulo 16, assinale a alternativa CORRETA:',
+        themeKey: 'entrada',
+        topic: 'Captura Eletrônica e Documento-Fonte (Inédita)',
+        question: 'Quando um estudo utiliza formulários eletrônicos (eCRFs) para coleta primária, em que situação faz sentido imprimir o registro logo após a coleta?',
         options: [
-          'As colunas representam os sujeitos (registros) e as linhas representam os atributos (campos).',
-          'As linhas correspondem aos registros (sujeitos/eventos), as colunas correspondem aos campos (atributos), e a chave principal identifica univocamente cada linha.',
-          'O termo "arquivo plano" refere-se a bancos relacionais com mais de cinco tabelas.',
-          'Um banco relacional impede que existam sujeitos sem nenhuma avaliação registrada.'
+          'Para gerar uma "fotografia" imediata dos dados que sirva como documento-fonte caso uma versão em papel seja exigida.',
+          'Para realizar posteriormente uma transcrição manual por teclado que garanta a entrada dupla obrigatória dos dados.',
+          'Para substituir o dicionário de dados e as regras de validação caso a conexão com a internet falhe durante a entrevista.',
+          'Para permitir que o participante revise e altere seus identificadores pessoais antes da exportação para o pacote estatístico.'
         ],
-        correct: 1,
-        explanation: 'Linhas = registros; colunas = campos; chave principal = identificador único da linha. Bancos relacionais acomodam facilmente sujeitos que não realizaram avaliações.'
+        correct: 0,
+        explanation: 'Imprimir logo após a coleta no eCRF funciona como o recibo de um caixa eletrônico: uma "fotografia" do registro original que pode atuar como documento-fonte se papel for exigido.'
       },
       {
         id: 11,
-        themeKey: 'dicionario',
-        topic: 'Nomes de Variáveis (Inédita)',
-        question: 'Um pesquisador nomeou as colunas de seu banco como "Questao1", "Questao2" e "Questao3". Qual é a recomendação do Capítulo 16 para melhorar esse banco?',
+        themeKey: 'entrada',
+        topic: 'Lógica de Pulos e eCRF (Inédita)',
+        question: 'Qual funcionalidade dos formulários eletrônicos de relato de caso (eCRFs) evita que perguntas irrelevantes sejam exibidas ao coletador ou ao participante?',
         options: [
-          'Manter "Questao1", pois softwares estatísticos não aceitam letras em nomes de variáveis.',
-          'Substituir por nomes curtos e autoexplicativos que descrevam o conteúdo (ex.: "JaFumou" em InterCaps ou "ja_fumou" com underline), sem espaços/caracteres especiais, usando rótulos para descrições longas.',
-          'Usar frases completas com espaços e acentos como nome da variável.',
-          'Apagar o dicionário de dados para evitar redundância.'
+          'A lógica de pulos, que exibe questões específicas apenas quando uma resposta prévia atende ao critério definido.',
+          'A integridade referencial, que impede o salvamento do formulário se houver campos opcionais deixados em branco.',
+          'A normalização automática, que separa questões abertas em tabelas distintas antes do término da entrevista.',
+          'O carregamento em lotes (batch upload), que importa respostas condicionais diretamente do prontuário hospitalar.'
         ],
-        correct: 1,
-        explanation: 'Nomes de variáveis devem descrever o campo (não sua posição no questionário), evitando espaços/caracteres especiais e usando InterCaps ou underline.'
+        correct: 0,
+        explanation: 'A lógica de pulos faz, por exemplo, a pergunta sobre maços/dia aparecer somente se o participante responder "sim" para ser fumante.'
       },
       {
         id: 12,
-        themeKey: 'entrada',
-        topic: 'Entrada Dupla e Dados Não CRF (Inédita)',
-        question: 'Quando um estudo ainda utiliza formulários em papel (CRF) e também recebe resultados eletrônicos do laboratório e de exames DEXA, qual estratégia é recomendada?',
+        themeKey: 'seguranca',
+        topic: 'Outliers vs Valores Fora da Faixa (Inédita)',
+        question: 'Qual é a diferença correta entre um valor fora da faixa permitida e um outlier durante o controle de qualidade de um banco de dados?',
         options: [
-          'Imprimir os exames de laboratório e DEXA para redigitá-los manualmente no banco.',
-          'Fazer entrada dupla (total ou em amostra aleatória) para conferir a fidelidade da transcrição do papel, e importar diretamente em lote (dados não CRF) os dados já eletrônicos.',
-          'Esperar o fim do estudo para transcrever os formulários de papel de uma só vez.',
-          'Enviar os formulários de papel sem criptografia por redes públicas.'
+          'O primeiro viola o domínio e deve ser barrado na entrada; o outlier está dentro da faixa permitida, mas é extremo e merece checagem.',
+          'O primeiro só aparece em variáveis categóricas codificadas; o outlier ocorre apenas quando há dados faltantes em consultas SQL.',
+          'O primeiro exige correção por auditoria externa; o outlier deve ser excluído automaticamente sem consultar documentos-fonte.',
+          'O primeiro resulta de falha na normalização das tabelas; o outlier decorre exclusivamente de erros de transcrição por teclado.'
         ],
-        correct: 1,
-        explanation: 'A entrada dupla (ou em amostra aleatória) verifica a transcrição do papel sem custo excessivo, enquanto dados já eletrônicos (lab, DEXA, Holter) devem ser importados diretamente em lote (dados não CRF).'
+        correct: 0,
+        explanation: 'Valores fora do domínio não devem sobreviver à validação de entrada; já outliers estão dentro da faixa permitida (ex.: 35 kg aos 5 anos), mas destoam muito do conjunto e precisam ser investigados via consultas e documentos-fonte.'
       },
       {
         id: 13,
         themeKey: 'consultas',
-        topic: 'Correção em Papel e Variáveis Derivadas (Inédita)',
-        question: 'Qual é o procedimento correto para corrigir um dado em documento-fonte de papel e como criar variáveis derivadas na fase de análise?',
+        topic: 'Variáveis Derivadas e Análise (Inédita)',
+        question: 'Sobre a criação de variáveis derivadas (como IMC > 25, agrupamento de antibióticos ou anos-maços) e o manejo de dados faltantes, o que afirma o capítulo?',
         options: [
-          'Usar corretivo branco no papel; nunca dicotomizar variáveis contínuas.',
-          'Assinalar a mudança com tinta vermelha, datar e assinar; na análise, derivar variáveis como IMC > 25, agrupamento de fármacos ou anos-maços e tratar "não sei" de modo consistente.',
-          'Rasgar a folha original; transformar "não sei" em média aritmética.',
-          'Corrigir apenas no computador; priorizar datas de visita acima da variável de desfecho.'
+          'Podem ser geradas por consultas no banco ou no pacote estatístico, e dados faltantes devem ter manejo consistente.',
+          'Devem sobrescrever permanentemente os valores brutos na tabela back-end para economizar espaço no servidor.',
+          'Só podem ser calculadas em bancos relacionais com SQL, pois pacotes estatísticos não derivam novas variáveis.',
+          'Exigem que respostas "não sei" sejam sempre somadas à categoria "sim" para não reduzir o tamanho amostral.'
         ],
-        correct: 1,
-        explanation: 'Correções em papel devem ser marcadas (ex.: tinta vermelha), datadas e assinadas. Na análise, criam-se variáveis derivadas (dicotomizações, agrupamentos, cálculos como anos-maços) e manejam-se faltantes ("não sei") de forma consistente.'
+        correct: 0,
+        explanation: 'Variáveis derivadas podem ser criadas via consultas (útil para cálculos complexos/tabelas de pesquisa como percentis) ou no próprio pacote estatístico; "não sei" pode virar categoria especial, ser combinada a "não" ou excluída como faltante, sempre de modo consistente.'
       },
       {
         id: 14,
         themeKey: 'seguranca',
-        topic: 'Arquivamento Final (Inédita)',
-        question: 'Ao término de uma pesquisa clínica, o que deve ser arquivado para uso futuro segundo o Capítulo 16?',
+        topic: 'Banco Congelado e Prioridade na Limpeza (Inédita)',
+        question: 'O que caracteriza o processo iterativo de edição/limpeza de dados e o momento de declarar o banco final ou "congelado"?',
         options: [
-          'Apenas o resumo publicado no congresso.',
-          'Apenas as tabelas brutas sem o dicionário de dados.',
-          'Os dados originais, o dicionário de dados, o banco de dados final e as análises do estudo.',
-          'Somente a lista de senhas dos membros da equipe.'
+          'Priorizar variáveis-chave (como o desfecho), repetir a limpeza até restarem pouquíssimos erros relevantes e bloquear novas alterações.',
+          'Executar uma única consulta de erros ao término da coleta e manter o banco aberto para edições durante a redação do artigo.',
+          'Corrigir primeiramente datas de visitas e registros administrativos antes de verificar inconsistências na variável de desfecho.',
+          'Excluir todos os participantes que apresentaram algum dado faltante em qualquer tabela antes de exportar o arquivo para análise.'
         ],
-        correct: 2,
-        explanation: 'Arquivar dados originais, dicionário de dados, banco final e análises permite responder a questões de integridade, fazer novas análises e compartilhar dados no futuro.'
+        correct: 0,
+        explanation: 'A limpeza prioriza variáveis mais importantes (como o desfecho no ECR), é repetida iterativamente até restar número muito pequeno de erros importantes e então o banco pode ser declarado final/congelado, sem modificações futuras.'
       }
     ];
 
@@ -2334,6 +2334,7 @@
     // Estado do quiz de fixação (1 por vez)
     let tQuizIdx = 0;
     let tQuizAnswered = false;
+    let activeShuffledTQuiz = null;
 
     // Estado da batalha contra Malakor
     let battle = {
@@ -2905,6 +2906,26 @@
     /* =======================================================================
        10. QUESTÕES DE FIXAÇÃO DOS VIAJANTES (UMA POR VEZ)
        ======================================================================= */
+    /**
+     * Embaralha dinamicamente as 4 alternativas de uma questão (Fisher-Yates)
+     * e atualiza o índice correto para distribuição aleatória entre A, B, C e D.
+     */
+    function prepareShuffledQuestion(q) {
+      const indexed = q.options.map((text, origIdx) => ({
+        text,
+        isCorrect: origIdx === q.correct
+      }));
+      for (let i = indexed.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indexed[i], indexed[j]] = [indexed[j], indexed[i]];
+      }
+      return {
+        ...q,
+        options: indexed.map((item) => item.text),
+        correct: indexed.findIndex((item) => item.isCorrect)
+      };
+    }
+
     function startTravelerQuiz() {
       stopTyping();
       playSFX('step');
@@ -2916,7 +2937,8 @@
 
     function renderTravelerQuestion() {
       const t = TRAVELERS[activeTravelerIdx];
-      const q = t.quiz[tQuizIdx];
+      const q = prepareShuffledQuestion(t.quiz[tQuizIdx]);
+      activeShuffledTQuiz = q;
       tQuizAnswered = false;
 
       document.getElementById('tquiz-counter').textContent = `Pergunta ${tQuizIdx + 1} de ${t.quiz.length}`;
@@ -2950,7 +2972,8 @@
       tQuizAnswered = true;
 
       const t = TRAVELERS[activeTravelerIdx];
-      const q = t.quiz[tQuizIdx];
+      const q = activeShuffledTQuiz;
+      const letters = ['A', 'B', 'C', 'D'];
       const ok = chosenIdx === q.correct;
       const btns = document.querySelectorAll('#tquiz-options .option-btn');
 
@@ -2973,14 +2996,14 @@
           xpTag = ' (+25 XP!)';
         }
         fb.className = 'feedback-box ok';
-        fb.innerHTML = `<strong>✨ Excelente!${xpTag}</strong> ${q.explanation}`;
+        fb.innerHTML = `<strong>✨ Excelente! Resposta ${letters[q.correct]} correta${xpTag}</strong> ${q.explanation}`;
       } else {
         playSFX('wrong');
         const card = document.getElementById('tquiz-card');
         card.classList.add('screen-shake');
         setTimeout(() => card.classList.remove('screen-shake'), 450);
         fb.className = 'feedback-box err';
-        fb.innerHTML = `<strong>💡 Quase lá!</strong> ${q.explanation}`;
+        fb.innerHTML = `<strong>💡 Quase lá! Gabarito: ${letters[q.correct]}.</strong> ${q.explanation}`;
       }
 
       // Se for a última pergunta do viajante, já salva como concluído no Grimório
@@ -3052,7 +3075,7 @@
     function startBossBattle(isRematch) {
       playSFX('step');
       battle = {
-        questions: buildBattleQuestions(isRematch),
+        questions: buildBattleQuestions(isRematch).map(prepareShuffledQuestion),
         idx: 0,
         correct: 0,
         wrongItems: [],
@@ -3224,6 +3247,7 @@
       battle.answered = true;
 
       const q = battle.questions[battle.idx];
+      const letters = ['A', 'B', 'C', 'D'];
       const ok = chosenIdx === q.correct;
       const btns = document.querySelectorAll('#boss-options .option-btn');
 
@@ -3239,12 +3263,12 @@
         battle.correct++;
         playHeroAttackAnim();
         fb.className = 'feedback-box ok';
-        fb.innerHTML = `<strong>⚔️ Golpe Certeiro! Malakor perdeu 10 HP!</strong> ${q.explanation}`;
+        fb.innerHTML = `<strong>⚔️ Golpe Certeiro (${letters[q.correct]})! Malakor perdeu 10 HP!</strong> ${q.explanation}`;
       } else {
         battle.wrongItems.push({ question: q, chosenIdx });
         playBossCounterAnim();
         fb.className = 'feedback-box err';
-        fb.innerHTML = `<strong>💥 Bloqueado! Contra-ataque de Malakor!</strong> ${q.explanation}`;
+        fb.innerHTML = `<strong>💥 Bloqueado! Gabarito: ${letters[q.correct]}.</strong> ${q.explanation}`;
       }
 
       document.getElementById('boss-next-wrap').classList.remove('hidden');
