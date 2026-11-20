@@ -1,0 +1,2281 @@
+```html
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Busca pelos 6 Artefatos da 4ª Prova de TCOIII</title>
+  <style>
+    /* =========================================================================
+       1. VARIÁVEIS DE TEMA E RESET BASE
+       ========================================================================= */
+    :root {
+      --bg-deep: #070b16;
+      --bg-navy: #0e1629;
+      --card-bg: rgba(18, 26, 46, 0.92);
+      --card-bg-2: rgba(25, 36, 63, 0.94);
+      --gold: #e4b94c;
+      --gold-bright: #ffe184;
+      --gold-dim: rgba(228, 185, 76, 0.32);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.45);
+      --arcane: #8b5cf6;
+      --arcane-bright: #c4b5fd;
+      --crimson: #ef4444;
+      --crimson-glow: rgba(239, 68, 68, 0.5);
+      --text-main: #eef2ff;
+      --text-muted: #94a3b8;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --font-epic: 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+      --font-sans: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      min-height: 100vh;
+      background-color: var(--bg-deep);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(139, 92, 246, 0.16), transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(228, 185, 76, 0.12), transparent 45%),
+        linear-gradient(180deg, #070b16 0%, #0b1224 55%, #070b16 100%);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.55;
+    }
+
+    .hidden { display: none !important; }
+
+    /* =========================================================================
+       2. PARTÍCULAS MÁGICAS DE FUNDO + VINHETA DE DANO
+       ========================================================================= */
+    #bg-particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .magic-mote {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: floatMote linear infinite;
+    }
+
+    @keyframes floatMote {
+      0% { transform: translateY(105vh) scale(0.5); opacity: 0; }
+      15% { opacity: 0.55; }
+      85% { opacity: 0.45; }
+      100% { transform: translateY(-10vh) scale(1.1); opacity: 0; }
+    }
+
+    #damage-vignette {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 90;
+      box-shadow: inset 0 0 110px 35px rgba(239, 68, 68, 0.72);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    #damage-vignette.flash {
+      opacity: 1;
+    }
+
+    #confetti-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 95;
+    }
+
+    /* =========================================================================
+       3. HUD FIXO NO TOPO
+       ========================================================================= */
+    .hud-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(7, 11, 22, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--gold-dim);
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.55);
+    }
+
+    .hud-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 10px 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .hud-stats {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.84rem;
+    }
+
+    .stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      background: rgba(20, 29, 52, 0.92);
+      border: 1px solid var(--gold-dim);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+
+    .stat-pill.arcane {
+      border-color: rgba(139, 92, 246, 0.5);
+      color: var(--arcane-bright);
+    }
+
+    .xp-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .xp-label {
+      font-weight: 700;
+      color: var(--gold-bright);
+      line-height: 1;
+      font-size: 0.8rem;
+    }
+
+    .xp-track {
+      width: 84px;
+      height: 5px;
+      background: #090e1c;
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--emerald), var(--gold-bright));
+      transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    /* =========================================================================
+       4. BOTÕES E CARTÕES ESTILO RPG
+       ========================================================================= */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 16px;
+      border-radius: 11px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      transition: transform 0.16s ease, filter 0.16s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      user-select: none;
+    }
+
+    .btn:active:not(:disabled) {
+      transform: translateY(2px) scale(0.98);
+    }
+
+    .btn-sm {
+      padding: 7px 11px;
+      font-size: 0.8rem;
+      border-radius: 9px;
+    }
+
+    .btn-gold {
+      background: linear-gradient(180deg, #f5d36d 0%, #c49328 100%);
+      color: #0b1020;
+      border: 1px solid #ffecb3;
+      box-shadow: 0 4px 16px rgba(228, 185, 76, 0.35);
+      font-weight: 700;
+    }
+
+    .btn-gold:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(228, 185, 76, 0.55);
+    }
+
+    .btn-arcane {
+      background: linear-gradient(180deg, #9f75ff 0%, #6d28d9 100%);
+      color: #ffffff;
+      border: 1px solid #d8b4fe;
+      box-shadow: 0 4px 16px rgba(139, 92, 246, 0.38);
+    }
+
+    .btn-arcane:hover:not(:disabled) {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 22px rgba(139, 92, 246, 0.55);
+    }
+
+    .btn-emerald {
+      background: linear-gradient(180deg, #22d396 0%, #059669 100%);
+      color: #06140f;
+      border: 1px solid #6ee7b7;
+      font-weight: 700;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+    }
+
+    .btn-emerald:hover:not(:disabled) {
+      filter: brightness(1.08);
+      transform: translateY(-2px);
+    }
+
+    .btn-slate {
+      background: linear-gradient(180deg, #202c4a 0%, #141c33 100%);
+      color: var(--text-main);
+      border: 1px solid var(--gold-dim);
+    }
+
+    .btn-slate:hover:not(:disabled) {
+      border-color: var(--gold);
+      background: linear-gradient(180deg, #28375c 0%, #1b2642 100%);
+      transform: translateY(-1px);
+    }
+
+    .btn-danger {
+      background: linear-gradient(180deg, #f87171 0%, #b91c1c 100%);
+      color: #fff;
+      border: 1px solid #fca5a5;
+    }
+
+    .rpg-panel {
+      background: linear-gradient(155deg, var(--card-bg), rgba(11, 16, 30, 0.96));
+      border: 1px solid var(--gold-dim);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .rpg-panel-arcane {
+      background: linear-gradient(155deg, rgba(35, 23, 62, 0.94), rgba(14, 17, 34, 0.97));
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      border-radius: var(--radius-lg);
+      box-shadow: 0 12px 36px rgba(139, 92, 246, 0.18);
+    }
+
+    .epic-title {
+      font-family: var(--font-epic);
+      letter-spacing: 0.02em;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-gold { background: rgba(228, 185, 76, 0.18); color: var(--gold-bright); border: 1px solid rgba(228, 185, 76, 0.45); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.18); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
+    .badge-arcane { background: rgba(139, 92, 246, 0.22); color: var(--arcane-bright); border: 1px solid rgba(139, 92, 246, 0.5); }
+    .badge-crimson { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.48); }
+    .badge-locked { background: rgba(51, 65, 85, 0.4); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.35); }
+
+    /* =========================================================================
+       5. LAYOUT PRINCIPAL
+       ========================================================================= */
+    .main-container {
+      position: relative;
+      z-index: 10;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 24px 16px 56px;
+    }
+
+    .view-enter {
+      animation: viewFadeUp 0.38s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes viewFadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* =========================================================================
+       6. TELA HUB: MAPA DOS REINOS
+       ========================================================================= */
+    .hub-hero {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .hub-hero h1 {
+      font-size: clamp(1.65rem, 3.6vw, 2.55rem);
+      background: linear-gradient(90deg, #ffe394, #f5c34b, #fff1c2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin: 8px 0 10px;
+      text-shadow: 0 2px 24px rgba(228, 185, 76, 0.18);
+    }
+
+    .hub-hero p {
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto;
+      font-size: 0.96rem;
+    }
+
+    .realms-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 18px;
+      margin-bottom: 22px;
+    }
+
+    .realm-card {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .realm-card.playable {
+      cursor: pointer;
+    }
+
+    .realm-card.playable:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow: 0 16px 36px rgba(228, 185, 76, 0.16);
+    }
+
+    .realm-card.locked {
+      opacity: 0.62;
+      filter: grayscale(0.35);
+    }
+
+    .realm-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .realm-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.6rem;
+      background: rgba(228, 185, 76, 0.14);
+      border: 1px solid var(--gold-dim);
+    }
+
+    .citadel-card {
+      padding: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    /* =========================================================================
+       7. TELA MAPA INTERATIVO DA FASE 1 (SVG ANIMADO)
+       ========================================================================= */
+    .map-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .map-banner {
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.9rem;
+    }
+
+    .map-wrapper {
+      padding: 16px;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .legend-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .legend-dot {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+
+    .map-stage {
+      position: relative;
+      width: 100%;
+      height: 460px;
+      border-radius: 14px;
+      background: radial-gradient(circle at 50% 45%, #162241 0%, #0d1528 70%, #090e1b 100%);
+      border: 1px solid rgba(228, 185, 76, 0.24);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .map-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .map-node-btn {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 20;
+      transition: transform 0.2s ease;
+    }
+
+    .map-node-btn:hover:not(.is-locked) {
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .map-node-circle {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2.5px solid #475569;
+      background: #141d34;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.55rem;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+      transition: all 0.25s ease;
+    }
+
+    .map-node-circle.done {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.22);
+      box-shadow: 0 0 22px var(--emerald-glow);
+    }
+
+    .map-node-circle.current {
+      border-color: var(--gold-bright);
+      background: rgba(228, 185, 76, 0.22);
+      box-shadow: 0 0 26px rgba(228, 185, 76, 0.65);
+    }
+
+    .map-node-circle.current::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid var(--gold-bright);
+      animation: pulseRing 1.9s ease-out infinite;
+    }
+
+    .map-node-circle.boss {
+      border-color: var(--crimson);
+      background: rgba(239, 68, 68, 0.22);
+      box-shadow: 0 0 24px var(--crimson-glow);
+    }
+
+    @keyframes pulseRing {
+      0% { transform: scale(0.92); opacity: 0.9; }
+      75% { transform: scale(1.3); opacity: 0; }
+      100% { transform: scale(1.3); opacity: 0; }
+    }
+
+    .node-check {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--emerald);
+      color: #06140f;
+      font-size: 0.72rem;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #fff;
+    }
+
+    .node-lock {
+      position: absolute;
+      bottom: -4px;
+      right: -4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #0f172a;
+      color: #94a3b8;
+      font-size: 0.68rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1.5px solid #475569;
+    }
+
+    .map-node-label {
+      margin-top: 7px;
+      padding: 3px 9px;
+      border-radius: 7px;
+      background: rgba(7, 11, 22, 0.92);
+      border: 1px solid rgba(228, 185, 76, 0.3);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #f1f5f9;
+      white-space: nowrap;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+    }
+
+    #hero-avatar {
+      position: absolute;
+      z-index: 30;
+      pointer-events: none;
+      transform: translate(-50%, -115%);
+      transition: left 0.85s cubic-bezier(0.34, 1.25, 0.64, 1), top 0.85s cubic-bezier(0.34, 1.25, 0.64, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .hero-avatar-bob {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold-bright), #b47b16);
+      border: 2.5px solid #ffffff;
+      box-shadow: 0 0 24px rgba(255, 225, 132, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      animation: bobHero 2.1s ease-in-out infinite;
+    }
+
+    .hero-avatar-tag {
+      margin-top: 3px;
+      padding: 1px 7px;
+      border-radius: 99px;
+      background: #070b16;
+      border: 1px solid var(--gold);
+      color: var(--gold-bright);
+      font-size: 0.65rem;
+      font-weight: 800;
+    }
+
+    @keyframes bobHero {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .map-quick-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .quick-stop-btn {
+      padding: 10px 12px;
+      border-radius: 11px;
+      border: 1px solid rgba(228, 185, 76, 0.25);
+      background: rgba(15, 23, 42, 0.78);
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .quick-stop-btn:hover:not(:disabled) {
+      border-color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* =========================================================================
+       8. TELA DE DIÁLOGO RPG COM VIAJANTES (UMA FALA POR VEZ)
+       ========================================================================= */
+    .dialogue-scene {
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .scene-topbar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .traveler-stage {
+      padding: 26px 24px 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .traveler-stage-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 25%, rgba(139, 92, 246, 0.14), transparent 65%);
+      pointer-events: none;
+    }
+
+    .portrait-area {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .portrait-frame {
+      width: 132px;
+      height: 132px;
+      border-radius: 50%;
+      padding: 6px;
+      background: linear-gradient(135deg, var(--gold-bright), var(--arcane), var(--gold));
+      box-shadow: 0 0 32px rgba(228, 185, 76, 0.35);
+      margin-bottom: 12px;
+      transition: transform 0.2s ease;
+    }
+
+    .portrait-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 50% 35%, #1e2d52, #0c1326);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .portrait-frame.talking {
+      animation: talkBounce 0.38s ease-in-out infinite;
+      box-shadow: 0 0 38px rgba(255, 225, 132, 0.6);
+    }
+
+    @keyframes talkBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-4px) scale(1.03); }
+    }
+
+    .rpg-dialogue-box {
+      position: relative;
+      background: linear-gradient(180deg, rgba(11, 17, 33, 0.96), rgba(16, 24, 46, 0.98));
+      border: 2px solid var(--gold);
+      border-radius: 16px;
+      padding: 22px 24px 18px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 0 24px rgba(228, 185, 76, 0.06);
+      cursor: pointer;
+    }
+
+    .dialogue-nameplate {
+      position: absolute;
+      top: -15px;
+      left: 20px;
+      padding: 4px 14px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, #e4b94c, #f6d776);
+      color: #0b1020;
+      font-family: var(--font-epic);
+      font-weight: 800;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+    .dialogue-progress-tag {
+      position: absolute;
+      top: -13px;
+      right: 18px;
+      padding: 3px 10px;
+      border-radius: 99px;
+      background: #131c35;
+      border: 1px solid var(--gold-dim);
+      color: var(--gold-bright);
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .dialogue-text {
+      min-height: 118px;
+      font-size: 1.02rem;
+      line-height: 1.72;
+      color: #e2e8f0;
+      margin-top: 6px;
+    }
+
+    .dialogue-text .hl {
+      color: var(--gold-bright);
+      font-weight: 700;
+    }
+
+    .typing-cursor {
+      display: inline-block;
+      width: 9px;
+      height: 1.05em;
+      background: var(--gold-bright);
+      margin-left: 3px;
+      vertical-align: -2px;
+      animation: blinkCursor 0.75s steps(2) infinite;
+    }
+
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .dialogue-footer {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(228, 185, 76, 0.2);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .speech-dots {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .speech-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #334155;
+      transition: all 0.25s ease;
+    }
+
+    .speech-dot.active {
+      width: 24px;
+      border-radius: 99px;
+      background: var(--gold-bright);
+    }
+
+    .speech-dot.read {
+      background: var(--emerald);
+    }
+
+    /* =========================================================================
+       9. QUESTÕES DE FIXAÇÃO (UMA POR VEZ)
+       ========================================================================= */
+    .quiz-card-anim {
+      animation: slideInCard 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes slideInCard {
+      from { opacity: 0; transform: translateX(22px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: rgba(12, 19, 36, 0.85);
+      border: 1.5px solid rgba(228, 185, 76, 0.26);
+      color: #e2e8f0;
+      font-size: 0.94rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      transition: all 0.18s ease;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--gold-bright);
+      background: rgba(30, 43, 74, 0.9);
+      transform: translateX(4px);
+    }
+
+    .option-letter {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: rgba(228, 185, 76, 0.16);
+      border: 1px solid rgba(228, 185, 76, 0.42);
+      color: var(--gold-bright);
+      font-weight: 800;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .option-btn.correct {
+      background: rgba(16, 185, 129, 0.22);
+      border-color: var(--emerald);
+      color: #ffffff;
+      box-shadow: 0 0 18px rgba(16, 185, 129, 0.25);
+    }
+
+    .option-btn.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--crimson);
+      color: #fecaca;
+    }
+
+    .option-btn.dimmed {
+      opacity: 0.45;
+    }
+
+    .feedback-box {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 0.92rem;
+      line-height: 1.55;
+      animation: viewFadeUp 0.25s ease forwards;
+    }
+
+    .feedback-box.ok {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #d1fae5;
+    }
+
+    .feedback-box.err {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fee2e2;
+    }
+
+    /* Partícula flutuante +25 XP */
+    .floating-xp {
+      position: fixed;
+      z-index: 99;
+      pointer-events: none;
+      font-weight: 900;
+      font-size: 1.2rem;
+      color: #34d399;
+      text-shadow: 0 2px 12px rgba(16, 185, 129, 0.85);
+      animation: floatUpFade 1.15s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    @keyframes floatUpFade {
+      0% { opacity: 1; transform: translate(-50%, 0) scale(0.85); }
+      30% { opacity: 1; transform: translate(-50%, -26px) scale(1.15); }
+      100% { opacity: 0; transform: translate(-50%, -72px) scale(1); }
+    }
+
+    /* =========================================================================
+       10. ARENA DE BATALHA DO MINI-CHEFÃO (MALAKOR) + ANIMAÇÕES DE DANO
+       ========================================================================= */
+    .battle-arena {
+      position: relative;
+      border-radius: 18px;
+      padding: 20px 20px 18px;
+      background:
+        radial-gradient(circle at 80% 40%, rgba(139, 92, 246, 0.24), transparent 50%),
+        radial-gradient(circle at 20% 60%, rgba(228, 185, 76, 0.15), transparent 45%),
+        linear-gradient(180deg, #10172d 0%, #090d1b 100%);
+      border: 1.5px solid rgba(239, 68, 68, 0.42);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.65);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+
+    .boss-hud-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .boss-hp-container {
+      width: 100%;
+      margin-bottom: 16px;
+    }
+
+    .boss-hp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .boss-hp-track {
+      position: relative;
+      width: 100%;
+      height: 20px;
+      background: #0b0f1c;
+      border-radius: 999px;
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Barra amarela de dano atrasado (estilo jogos de luta/RPG) */
+    .boss-hp-trail {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #f59e0b, #fde047);
+      transition: width 0.85s ease 0.3s;
+      z-index: 1;
+    }
+
+    .boss-hp-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #991b1b, #ef4444, #f87171);
+      transition: width 0.25s ease;
+      z-index: 2;
+    }
+
+    .boss-hp-threshold {
+      position: absolute;
+      left: 20%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: var(--gold-bright);
+      z-index: 3;
+      box-shadow: 0 0 8px var(--gold-bright);
+    }
+
+    .arena-stage {
+      position: relative;
+      height: 175px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+    }
+
+    .fighter-slot {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 5;
+    }
+
+    .hero-sprite {
+      width: 105px;
+      height: 115px;
+      transition: transform 0.2s ease;
+      filter: drop-shadow(0 8px 16px rgba(228, 185, 76, 0.35));
+    }
+
+    .hero-sprite.attacking {
+      animation: heroLunge 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes heroLunge {
+      0% { transform: translateX(0); }
+      35% { transform: translateX(48px) scale(1.08); }
+      100% { transform: translateX(0); }
+    }
+
+    .hero-sprite.hurt {
+      animation: hurtShake 0.45s ease;
+      filter: drop-shadow(0 0 18px #ef4444) brightness(1.3);
+    }
+
+    .boss-sprite {
+      width: 132px;
+      height: 138px;
+      animation: bossFloat 2.8s ease-in-out infinite;
+      filter: drop-shadow(0 10px 22px rgba(139, 92, 246, 0.45));
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    @keyframes bossFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .boss-sprite.hit {
+      animation: bossViolentShake 0.52s ease !important;
+      filter: brightness(2.4) drop-shadow(0 0 26px #ef4444) !important;
+    }
+
+    .boss-sprite.cast-dark {
+      animation: bossCast 0.55s ease !important;
+      filter: drop-shadow(0 0 32px #a855f7) brightness(1.5) !important;
+    }
+
+    .boss-sprite.defeated {
+      animation: bossDisintegrate 1s ease forwards !important;
+    }
+
+    @keyframes bossViolentShake {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      15% { transform: translate(-14px, -4px) rotate(-6deg); }
+      30% { transform: translate(14px, 5px) rotate(6deg); }
+      45% { transform: translate(-12px, 3px) rotate(-4deg); }
+      60% { transform: translate(10px, -4px) rotate(4deg); }
+      75% { transform: translate(-6px, 2px) rotate(-2deg); }
+    }
+
+    @keyframes bossCast {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.14) translateX(-18px); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes bossDisintegrate {
+      0% { opacity: 1; transform: scale(1) rotate(0deg); filter: brightness(2) drop-shadow(0 0 30px #ffe184); }
+      50% { opacity: 0.7; transform: scale(1.2) rotate(8deg); filter: brightness(3) blur(2px); }
+      100% { opacity: 0; transform: scale(0.2) translateY(-40px) rotate(-18deg); filter: brightness(4) blur(10px); }
+    }
+
+    /* Projétil Mágico / Corte de Espada do Herói -> Chefe */
+    .magic-projectile {
+      position: absolute;
+      left: 16%;
+      top: 50%;
+      width: 68px;
+      height: 18px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, transparent, #ffe184, #ffffff);
+      box-shadow: 0 0 22px #ffe184, 0 0 36px #10b981;
+      z-index: 20;
+      pointer-events: none;
+      transform: translateY(-50%);
+      animation: flyRight 0.34s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+    }
+
+    @keyframes flyRight {
+      0% { left: 16%; opacity: 0.9; transform: translateY(-50%) scaleX(0.6); }
+      70% { opacity: 1; transform: translateY(-50%) scaleX(1.3); }
+      100% { left: 78%; opacity: 0; transform: translateY(-50%) scaleX(0.4); }
+    }
+
+    /* Corte diagonal luminoso no chefe */
+    .slash-effect {
+      position: absolute;
+      right: 9%;
+      top: 22%;
+      width: 110px;
+      height: 110px;
+      z-index: 22;
+      pointer-events: none;
+      animation: slashPop 0.38s ease-out forwards;
+    }
+
+    @keyframes slashPop {
+      0% { transform: scale(0.3) rotate(-25deg); opacity: 0; }
+      35% { transform: scale(1.15) rotate(0deg); opacity: 1; }
+      100% { transform: scale(1.35) rotate(8deg); opacity: 0; }
+    }
+
+    /* Onda Sombria do Chefe -> Herói */
+    .dark-wave {
+      position: absolute;
+      right: 18%;
+      top: 50%;
+      width: 72px;
+      height: 24px;
+      border-radius: 99px;
+      background: linear-gradient(270deg, transparent, #a855f7, #ef4444);
+      box-shadow: 0 0 26px #a855f7, 0 0 36px #ef4444;
+      z-index: 20;
+      pointer-events: none;
+      transform: translateY(-50%);
+      animation: flyLeft 0.38s cubic-bezier(0.15, 0.85, 0.35, 1) forwards;
+    }
+
+    @keyframes flyLeft {
+      0% { right: 18%; opacity: 0.95; transform: translateY(-50%) scale(0.8); }
+      100% { right: 78%; opacity: 0; transform: translateY(-50%) scale(1.35); }
+    }
+
+    /* Número de Dano Flutuante Gigante */
+    .damage-number {
+      position: absolute;
+      z-index: 30;
+      pointer-events: none;
+      font-family: var(--font-epic);
+      font-weight: 900;
+      font-size: 1.55rem;
+      white-space: nowrap;
+      animation: dmgFloat 1.05s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .damage-number.boss-dmg {
+      right: 12%;
+      top: 24%;
+      color: #fde047;
+      text-shadow: 0 0 12px #ef4444, 0 3px 0 #7f1d1d;
+    }
+
+    .damage-number.player-dmg {
+      left: 10%;
+      top: 26%;
+      color: #f87171;
+      font-size: 1.15rem;
+      text-shadow: 0 0 12px #7e22ce, 0 2px 0 #1e1b4b;
+    }
+
+    @keyframes dmgFloat {
+      0% { opacity: 0; transform: translateY(12px) scale(0.6); }
+      20% { opacity: 1; transform: translateY(-10px) scale(1.22); }
+      100% { opacity: 0; transform: translateY(-64px) scale(0.95); }
+    }
+
+    /* Faíscas de impacto */
+    .spark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 25;
+      animation: sparkBurst 0.65s ease-out forwards;
+    }
+
+    @keyframes sparkBurst {
+      0% { transform: translate(0, 0) scale(1.1); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    /* Tremores gerais */
+    .screen-shake {
+      animation: hurtShake 0.42s ease-in-out;
+    }
+
+    @keyframes hurtShake {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(-8px, 3px); }
+      40% { transform: translate(8px, -3px); }
+      60% { transform: translate(-6px, 2px); }
+      80% { transform: translate(6px, -2px); }
+    }
+
+    /* =========================================================================
+       11. MODAIS (GRIMÓRIO E REINÍCIO) + TOAST
+       ========================================================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      background: rgba(3, 6, 15, 0.82);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 840px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--gold-dim);
+      background: rgba(9, 13, 27, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .toast-box {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 95;
+      padding: 11px 16px;
+      border-radius: 12px;
+      background: rgba(16, 24, 46, 0.96);
+      border: 1px solid var(--gold);
+      color: var(--gold-bright);
+      font-size: 0.86rem;
+      font-weight: 600;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      animation: viewFadeUp 0.25s ease;
+    }
+
+    /* =========================================================================
+       12. RESPONSIVIDADE MOBILE
+       ========================================================================= */
+    @media (max-width: 680px) {
+      .hud-inner { padding: 8px 10px; }
+      .stat-pill { padding: 5px 8px; font-size: 0.74rem; }
+      .xp-track { width: 58px; }
+      .hide-mobile { display: none; }
+      .map-stage { height: 420px; }
+      .map-node-circle { width: 46px; height: 46px; font-size: 1.25rem; }
+      .map-node-label { font-size: 0.65rem; padding: 2px 6px; }
+      .hero-avatar-bob { width: 36px; height: 36px; font-size: 1.1rem; }
+      .rpg-dialogue-box { padding: 20px 15px 15px; }
+      .dialogue-text { font-size: 0.94rem; min-height: 128px; }
+      .arena-stage { height: 148px; padding: 0 6px; }
+      .hero-sprite { width: 82px; height: 92px; }
+      .boss-sprite { width: 102px; height: 108px; }
+      .damage-number { font-size: 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Camadas de efeitos visuais -->
+  <div id="bg-particles"></div>
+  <div id="damage-vignette"></div>
+  <canvas id="confetti-canvas" class="hidden"></canvas>
+
+  <!-- =======================================================================
+       HUD FIXO NO TOPO
+       ======================================================================= -->
+  <header class="hud-header">
+    <div class="hud-inner">
+      <div class="hud-stats">
+        <div class="stat-pill" title="Local Atual">
+          <span>📍</span>
+          <strong id="hud-location">Mapa dos Reinos</strong>
+        </div>
+
+        <div class="stat-pill" title="Nível e Experiência">
+          <span>⭐</span>
+          <div class="xp-wrap">
+            <span id="hud-level" class="xp-label">Nível 1 (0 XP)</span>
+            <div class="xp-track"><div id="hud-xp-fill" class="xp-fill"></div></div>
+          </div>
+        </div>
+
+        <div class="stat-pill arcane" title="Artefatos Conquistados">
+          <span>🔮</span>
+          <strong id="hud-artifacts">Artefatos: 0/6</strong>
+        </div>
+      </div>
+
+      <div class="hud-actions">
+        <button class="btn btn-slate btn-sm" onclick="navigateTo('hub')" title="Mapa dos Reinos">
+          <span>🗺️</span><span class="hide-mobile">Mapa dos Reinos</span>
+        </button>
+        <button class="btn btn-slate btn-sm" onclick="openGrimoire()" title="Abrir Grimório">
+          <span>📖</span><span class="hide-mobile">Grimório</span>
+          <span id="hud-grimoire-count" class="badge badge-gold" style="padding:1px 6px;font-size:0.68rem;">0/5</span>
+        </button>
+        <button id="btn-sound" class="btn btn-slate btn-sm" onclick="toggleSound()" title="Ligar/Desligar Som">🔊</button>
+        <button class="btn btn-slate btn-sm" onclick="openResetModal()" title="Reiniciar Progresso" style="color:#fca5a5;">↺</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- =======================================================================
+       CONTEÚDO PRINCIPAL
+       ======================================================================= -->
+  <main id="app-main" class="main-container">
+
+    <!-- ---------------------------------------------------------------------
+         TELA 1: HUB - MAPA DOS REINOS
+         --------------------------------------------------------------------- -->
+    <section id="view-hub" class="view-enter">
+      <div class="hub-hero">
+        <span class="badge badge-gold">✨ Jornada Interativa de Estudos • TCOIII</span>
+        <h1 class="epic-title">A Busca pelos 6 Artefatos da 4ª Prova</h1>
+        <p>
+          Explore os reinos do conhecimento, converse com os viajantes sábios ao longo do caminho e derrote cada Mini-Chefão acertando <strong style="color:#34d399;">mais de 70%</strong> no simulado para conquistar todos os artefatos.
+        </p>
+      </div>
+
+      <div id="realms-grid" class="realms-grid"></div>
+
+      <!-- Cidadela do Chefão Final -->
+      <div class="rpg-panel-arcane citadel-card" style="opacity:0.86;">
+        <div style="display:flex;align-items:center;gap:16px;flex:1;min-width:240px;">
+          <div style="width:56px;height:56px;border-radius:14px;background:rgba(139,92,246,0.22);border:1px solid rgba(196,181,253,0.45);display:flex;align-items:center;justify-content:center;font-size:1.9rem;flex-shrink:0;">
+            🏰
+          </div>
+          <div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:4px;">
+              <span class="badge badge-arcane">Fase Final</span>
+              <span style="font-size:0.76rem;color:#94a3b8;">🔒 Requer 6/6 Artefatos</span>
+            </div>
+            <h2 class="epic-title" style="font-size:1.18rem;color:#fff;">A Cidadela do Chefão Final — Revisão Geral</h2>
+            <p style="font-size:0.84rem;color:#94a3b8;margin-top:3px;">
+              Batalha derradeira unindo os Capítulos 16 a 20 e os Vídeos para selar sua aprovação.
+            </p>
+          </div>
+        </div>
+        <button disabled class="btn btn-slate btn-sm" style="padding:10px 16px;">🔒 Bloqueada (<span id="citadel-art-count">0</span>/6)</button>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------------
+         TELA 2: MAPA INTERATIVO DA FASE 1 (CAPÍTULO 16)
+         --------------------------------------------------------------------- -->
+    <section id="view-map" class="hidden view-enter">
+      <div class="map-header">
+        <div>
+          <button class="btn btn-slate btn-sm" onclick="navigateTo('hub')" style="margin-bottom:8px;">← Mapa dos Reinos</button>
+          <h2 class="epic-title" style="font-size:clamp(1.35rem,3vw,2rem);color:var(--gold-bright);">Fase 1: Reino do Capítulo 16</h2>
+          <p style="font-size:0.88rem;color:var(--text-muted);"><em>Gerenciando Dados</em> — Hulley et al., Delineando a Pesquisa Clínica (4ª ed.)</p>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn btn-arcane" onclick="openBossIntro()">⚔️ Enfrentar Malakor (Mini-Chefão)</button>
+        </div>
+      </div>
+
+      <div class="rpg-panel map-banner">
+        <div style="display:flex;align-items:center;gap:10px;flex:1;min-width:220px;">
+          <span style="font-size:1.35rem;">🧭</span>
+          <p id="map-guide-text" style="color:#e2e8f0;"></p>
+        </div>
+        <span id="map-progress-badge" class="badge badge-gold">0/5 Viajantes</span>
+      </div>
+
+      <div class="rpg-panel map-wrapper">
+        <div class="map-legend">
+          <div class="legend-items">
+            <span><i class="legend-dot" style="background:var(--emerald);"></i>Concluído</span>
+            <span><i class="legend-dot" style="background:var(--gold-bright);"></i>Próxima Parada</span>
+            <span><i class="legend-dot" style="background:#475569;"></i>Bloqueado</span>
+            <span><i class="legend-dot" style="background:var(--crimson);"></i>Mini-Chefão</span>
+          </div>
+          <span style="color:var(--gold);">Clique em um ponto liberado para caminhar</span>
+        </div>
+
+        <div id="map-stage" class="map-stage">
+          <svg class="map-svg" viewBox="0 0 1000 460" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="litPathGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#10b981" />
+                <stop offset="60%" stop-color="#ffe184" />
+                <stop offset="100%" stop-color="#ef4444" />
+              </linearGradient>
+              <filter id="pathGlow">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            <!-- Elementos de cenário místico (montanhas, estrelas, rios sutis) -->
+            <g opacity="0.14" fill="#3b4d78">
+              <polygon points="20,440 95,320 170,440" />
+              <polygon points="105,440 165,355 225,440" />
+              <polygon points="760,150 845,35 930,150" />
+              <polygon points="850,150 915,65 985,150" />
+            </g>
+            <g opacity="0.08" stroke="#e4b94c" stroke-width="1">
+              <line x1="0" y1="115" x2="1000" y2="115" />
+              <line x1="0" y1="230" x2="1000" y2="230" />
+              <line x1="0" y1="345" x2="1000" y2="345" />
+              <line x1="250" y1="0" x2="250" y2="460" />
+              <line x1="500" y1="0" x2="500" y2="460" />
+              <line x1="750" y1="0" x2="750" y2="460" />
+            </g>
+
+            <!-- Trilha apagada (base) -->
+            <path id="svg-trail-base" fill="none" stroke="rgba(148,163,184,0.2)" stroke-width="10" stroke-linecap="round" />
+            <!-- Trilha iluminada conforme progresso -->
+            <path id="svg-trail-lit" fill="none" stroke="url(#litPathGrad)" stroke-width="5" stroke-dasharray="12 8" stroke-linecap="round" filter="url(#pathGlow)" />
+          </svg>
+
+          <!-- Camada de Nós -->
+          <div id="map-nodes-layer" style="position:absolute;inset:0;"></div>
+
+          <!-- Avatar Animado do Herói -->
+          <div id="hero-avatar" style="left:11%;top:72%;">
+            <div class="hero-avatar-bob">🧙‍♂️</div>
+            <span class="hero-avatar-tag">Você</span>
+          </div>
+        </div>
+
+        <!-- Barra de acesso rápido para facilitar toques em celular -->
+        <div id="map-quick-grid" class="map-quick-grid"></div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------------
+         TELA 3: ENCONTRO COM VIAJANTE (DIÁLOGO UMA FALA POR VEZ + FIXAÇÃO)
+         --------------------------------------------------------------------- -->
+    <section id="view-traveler" class="hidden view-enter">
+      <div class="dialogue-scene">
+        <div class="scene-topbar">
+          <button class="btn btn-slate btn-sm" onclick="exitTravelerToMap()">← Voltar ao Mapa</button>
+          <span id="traveler-badge" class="badge badge-gold">Viajante 1 de 5</span>
+        </div>
+
+        <!-- MODO A: CENA DE DIÁLOGO RPG -->
+        <div id="traveler-dialogue-panel" class="rpg-panel traveler-stage">
+          <div class="traveler-stage-bg"></div>
+
+          <div class="portrait-area">
+            <div id="traveler-portrait-frame" class="portrait-frame">
+              <div id="traveler-portrait-svg" class="portrait-inner"></div>
+            </div>
+            <h2 id="traveler-title-main" class="epic-title" style="font-size:1.35rem;color:var(--gold-bright);"></h2>
+            <p id="traveler-subtitle-main" style="font-size:0.84rem;color:var(--arcane-bright);margin-top:2px;"></p>
+          </div>
+
+          <!-- Caixa de Fala Clicável (acelera ou avança) -->
+          <div id="dialogue-box" class="rpg-dialogue-box" onclick="handleDialogueBoxClick()">
+            <div id="dialogue-nameplate" class="dialogue-nameplate">Viajante</div>
+            <div id="dialogue-counter" class="dialogue-progress-tag">Fala 1 de 4</div>
+            <div id="dialogue-text" class="dialogue-text"></div>
+
+            <div class="dialogue-footer" onclick="event.stopPropagation()">
+              <button id="btn-prev-speech" class="btn btn-slate btn-sm" onclick="prevSpeech()">◀ Anterior</button>
+
+              <div id="speech-dots" class="speech-dots"></div>
+
+              <div style="display:flex;gap:8px;align-items:center;">
+                <button id="btn-next-speech" class="btn btn-gold btn-sm" onclick="nextOrFinishTyping()">Avançar ▶</button>
+                <button id="btn-start-fixation" class="btn btn-emerald btn-sm hidden" onclick="startTravelerQuiz()">⚔️ Desafio de Fixação</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODO B: DESAFIO DE FIXAÇÃO (2 QUESTÕES, UMA POR VEZ) -->
+        <div id="traveler-quiz-panel" class="hidden rpg-panel" style="padding:24px;">
+          <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="badge badge-arcane" id="tquiz-counter">Pergunta 1 de 2</span>
+              <span class="badge badge-emerald">+25 XP por acerto</span>
+            </div>
+            <button class="btn btn-slate btn-sm" onclick="backToDialogue()">📖 Reler Falas</button>
+          </div>
+
+          <div id="tquiz-card" class="quiz-card-anim">
+            <h3 id="tquiz-question" style="font-size:1.05rem;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.55;"></h3>
+            <div id="tquiz-options" style="display:flex;flex-direction:column;gap:10px;"></div>
+            <div id="tquiz-feedback" class="hidden"></div>
+
+            <div id="tquiz-next-wrap" class="hidden" style="margin-top:18px;display:flex;justify-content:flex-end;">
+              <button id="btn-tquiz-next" class="btn btn-gold" onclick="nextTravelerQuestion()">Próxima Pergunta ▶</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------------------------------
+         TELA 4: BATALHA CONTRA O MINI-CHEFÃO (MALAKOR)
+         --------------------------------------------------------------------- -->
+    <section id="view-boss" class="hidden view-enter">
+      <!-- Intro do Mini-Chefão -->
+      <div id="boss-intro" class="rpg-panel" style="max-width:780px;margin:0 auto;padding:28px 24px;text-align:center;">
+        <div style="width:120px;height:120px;margin:0 auto 12px;" id="boss-intro-svg"></div>
+        <span class="badge badge-crimson">Mini-Chefão • Capítulo 16</span>
+        <h2 class="epic-title" style="font-size:clamp(1.45rem,3vw,2.1rem);color:#fff;margin:8px 0;">Malakor, o Devorador de Dados</h2>
+        <p style="color:#cbd5e1;max-width:580px;margin:0 auto 20px;font-size:0.95rem;">
+          “Planilhas desnormalizadas e dados corrompidos alimentam meu poder! Enfrente meu simulado de <strong>10 questões</strong> e prove seu domínio sobre o Capítulo 16.”
+        </p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;text-align:left;margin-bottom:20px;">
+          <div style="padding:14px;border-radius:12px;background:rgba(10,16,30,0.85);border:1px solid var(--gold-dim);">
+            <strong style="color:var(--gold-bright);font-size:0.86rem;">🎯 Condição de Vitória</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Acertar <strong>mais de 70%</strong> (pelo menos <strong>8 de 10 questões</strong>).</p>
+          </div>
+          <div style="padding:14px;border-radius:12px;background:rgba(10,16,30,0.85);border:1px solid rgba(139,92,246,0.4);">
+            <strong style="color:var(--arcane-bright);font-size:0.86rem;">🔮 Recompensa</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;"><strong>Artefato 1/6:</strong> O Pergaminho da Normalização + 200 XP.</p>
+          </div>
+          <div style="padding:14px;border-radius:12px;background:rgba(10,16,30,0.85);border:1px solid rgba(239,68,68,0.4);">
+            <strong style="color:#fca5a5;font-size:0.86rem;">🛡️ Se tirar ≤ 70%</strong>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;">Recuo estratégico com revisão focada nos erros + revanche com questões inéditas.</p>
+          </div>
+        </div>
+
+        <div id="boss-warning-box" class="hidden" style="margin-bottom:18px;padding:12px 14px;border-radius:12px;background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.4);color:#fde68a;font-size:0.84rem;">
+          ⚠️ Você conversou com <strong id="boss-warn-count">0/5</strong> viajantes. Você pode lutar agora, mas ouvir os viajantes primeiro torna a vitória muito mais fácil!
+        </div>
+
+        <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;">
+          <button class="btn btn-slate" onclick="navigateTo('map')">← Voltar ao Mapa</button>
+          <button class="btn btn-gold" onclick="startBossBattle(false)">⚔️ Iniciar Batalha (10 Questões)</button>
+        </div>
+      </div>
+
+      <!-- Arena de Combate -->
+      <div id="boss-arena-wrap" class="hidden" style="max-width:880px;margin:0 auto;">
+        <div id="battle-arena" class="battle-arena">
+          <div class="boss-hud-top">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+              <span id="boss-q-badge" class="badge badge-gold">Questão 1 / 10</span>
+              <span id="boss-acc-badge" class="badge badge-emerald">Acertos: 0 (0%)</span>
+            </div>
+            <span id="boss-topic-badge" class="badge badge-arcane">Tema</span>
+          </div>
+
+          <!-- Barra de HP do Malakor com rastro amarelo de dano -->
+          <div class="boss-hp-container">
+            <div class="boss-hp-header">
+              <span class="epic-title" style="color:#fca5a5;">👹 Malakor, o Devorador de Dados</span>
+              <span id="boss-hp-label" style="color:#fde047;">HP: 100 / 100</span>
+            </div>
+            <div class="boss-hp-track">
+              <div class="boss-hp-threshold" title="Meta de vitória: derrubar para ≤ 20 HP (8+ acertos)"></div>
+              <div id="boss-hp-trail" class="boss-hp-trail"></div>
+              <div id="boss-hp-fill" class="boss-hp-fill"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:#94a3b8;margin-top:4px;">
+              <span>▲ Meta: ≤ 20 HP (8+ acertos para vencer)</span>
+              <span>Cada acerto causa -10 HP</span>
+            </div>
+          </div>
+
+          <!-- Palco Visual: Herói vs Malakor -->
+          <div id="arena-stage" class="arena-stage">
+            <div class="fighter-slot">
+              <div id="hero-sprite" class="hero-sprite"></div>
+              <span style="font-size:0.72rem;font-weight:700;color:var(--gold-bright);margin-top:4px;">Você (Herói)</span>
+            </div>
+
+            <div class="fighter-slot">
+              <div id="boss-sprite" class="boss-sprite"></div>
+              <span style="font-size:0.72rem;font-weight:700;color:#fca5a5;margin-top:4px;">Malakor</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cartão da Questão do Simulado -->
+        <div id="boss-q-card" class="rpg-panel quiz-card-anim" style="padding:22px;">
+          <h3 id="boss-q-text" style="font-size:1.04rem;font-weight:700;color:#fff;margin-bottom:16px;line-height:1.58;"></h3>
+          <div id="boss-options" style="display:flex;flex-direction:column;gap:10px;"></div>
+          <div id="boss-feedback" class="hidden"></div>
+
+          <div id="boss-next-wrap" class="hidden" style="margin-top:18px;display:flex;justify-content:flex-end;">
+            <button id="btn-boss-next" class="btn btn-gold" onclick="nextBossQuestion()">Próxima Questão ▶</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tela de Resultado (Vitória ou Recuo Estratégico) -->
+      <div id="boss-result" class="hidden" style="max-width:820px;margin:0 auto;"></div>
+    </section>
+  </main>
+
+  <!-- =======================================================================
+       MODAL DO GRIMÓRIO
+       ======================================================================= -->
+  <div id="modal-grimoire" class="modal-backdrop hidden" onclick="if(event.target===this) closeGrimoire()">
+    <div class="rpg-panel modal-box">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:1.5rem;">📖</span>
+          <div>
+            <h2 class="epic-title" style="font-size:1.15rem;color:var(--gold-bright);">Grimório do Capítulo 16</h2>
+            <p style="font-size:0.76rem;color:var(--text-muted);">Todos os ensinamentos desbloqueados dos viajantes</p>
+          </div>
+        </div>
+        <button class="btn btn-slate btn-sm" onclick="closeGrimoire()">✕ Fechar</button>
+      </div>
+      <div id="grimoire-body" class="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- =======================================================================
+       MODAL DE REINÍCIO (SEM confirm/alert)
+       ======================================================================= -->
+  <div id="modal-reset" class="modal-backdrop hidden" onclick="if(event.target===this) closeResetModal()">
+    <div class="rpg-panel" style="max-width:440px;width:100%;padding:24px;text-align:center;border-color:rgba(239,68,68,0.5);">
+      <div style="font-size:2.4rem;margin-bottom:8px;">⚠️</div>
+      <h3 class="epic-title" style="font-size:1.25rem;color:#fff;margin-bottom:8px;">Reiniciar Progresso?</h3>
+      <p style="font-size:0.88rem;color:#cbd5e1;margin-bottom:20px;">
+        Escolha se deseja reiniciar apenas a Fase 1 (Capítulo 16) ou apagar todo o seu progresso (XP, nível, viajantes e artefatos).
+      </p>
+      <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px;">
+        <button class="btn btn-slate btn-sm" onclick="closeResetModal()">Cancelar</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmReset()">Sim, Reiniciar Tudo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast de Notificação -->
+  <div id="toast" class="toast-box hidden">
+    <span id="toast-icon">✨</span>
+    <span id="toast-msg"></span>
+  </div>
+
+  <!-- =======================================================================
+       JAVASCRIPT PURO DO JOGO
+       ======================================================================= -->
+  <script>
+    /* =======================================================================
+       1. ILUSTRAÇÕES SVG DOS PERSONAGENS (HERÓI, 5 VIAJANTES E MALAKOR)
+       ======================================================================= */
+    const SVGS = {
+      hero: `
+        <svg viewBox="0 0 120 130" width="100%" height="100%">
+          <defs>
+            <linearGradient id="cloakG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#3b82f6"/>
+              <stop offset="100%" stop-color="#1e3a8a"/>
+            </linearGradient>
+            <linearGradient id="bladeG" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#fff7cc"/>
+              <stop offset="100%" stop-color="#e4b94c"/>
+            </linearGradient>
+          </defs>
+          <!-- Aura -->
+          <circle cx="55" cy="70" r="44" fill="rgba(228,185,76,0.12)"/>
+          <!-- Capa -->
+          <path d="M30 62 Q52 50 74 64 L82 118 L22 118 Z" fill="url(#cloakG)" stroke="#93c5fd" stroke-width="2"/>
+          <!-- Peitoral -->
+          <rect x="38" y="64" width="28" height="34" rx="8" fill="#1e293b" stroke="#e4b94c" stroke-width="2"/>
+          <!-- Cabeça -->
+          <circle cx="52" cy="44" r="16" fill="#fde68a" stroke="#b45309" stroke-width="1.5"/>
+          <!-- Chapéu de Mago/Estudioso -->
+          <path d="M26 36 L52 6 L78 36 Z" fill="#1e3a8a" stroke="#ffe184" stroke-width="2"/>
+          <ellipse cx="52" cy="36" rx="28" ry="6" fill="#1d4ed8" stroke="#ffe184" stroke-width="2"/>
+          <!-- Olhos -->
+          <circle cx="47" cy="44" r="2.2" fill="#0f172a"/>
+          <circle cx="58" cy="44" r="2.2" fill="#0f172a"/>
+          <!-- Espada/Cajado Mágico -->
+          <path d="M84 84 L110 26 L104 22 L78 80 Z" fill="url(#bladeG)" stroke="#fff" stroke-width="1.2"/>
+          <circle cx="107" cy="24" r="6" fill="#34d399" opacity="0.85"/>
+          <rect x="73" y="76" width="16" height="5" rx="2" transform="rotate(24 81 78)" fill="#e4b94c"/>
+        </svg>`,
+
+      boss: `
+        <svg viewBox="0 0 140 145" width="100%" height="100%">
+          <defs>
+            <radialGradient id="bossCore" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#7e22ce"/>
+              <stop offset="65%" stop-color="#3b0764"/>
+              <stop offset="100%" stop-color="#111827"/>
+            </radialGradient>
+          </defs>
+          <!-- Aura sombria -->
+          <circle cx="70" cy="74" r="56" fill="rgba(168,85,247,0.16)"/>
+          <!-- Chifres -->
+          <path d="M38 42 Q18 14 34 8 Q44 22 52 34 Z" fill="#1f2937" stroke="#ef4444" stroke-width="2"/>
+          <path d="M102 42 Q122 14 106 8 Q96 22 88 34 Z" fill="#1f2937" stroke="#ef4444" stroke-width="2"/>
+          <!-- Corpo espectral -->
+          <path d="M28 65 Q70 18 112 65 L120 124 Q96 112 84 128 Q70 112 56 128 Q44 112 20 124 Z" fill="url(#bossCore)" stroke="#c084fc" stroke-width="2.5"/>
+          <!-- Máscara / Rosto -->
+          <path d="M44 58 Q70 42 96 58 L90 92 Q70 104 50 92 Z" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+          <!-- Olhos brilhantes -->
+          <polygon points="52,68 65,73 54,77" fill="#ef4444"/>
+          <polygon points="88,68 75,73 86,77" fill="#ef4444"/>
+          <!-- Boca serrilhada -->
+          <path d="M56 86 L62 82 L68 87 L74 82 L80 87 L85 84" fill="none" stroke="#f87171" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- Símbolo de Dados Corrompidos -->
+          <rect x="57" y="102" width="26" height="14" rx="3" fill="rgba(239,68,68,0.28)" stroke="#f87171" stroke-width="1.4"/>
+          <line x1="63" y1="109" x2="77" y2="109" stroke="#fde047" stroke-width="2" stroke-dasharray="3 2"/>
+        </svg>`,
+
+      eldrin: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <circle cx="60" cy="52" r="24" fill="#fcd39d"/>
+          <path d="M36 52 Q60 16 84 52" fill="#94a3b8"/>
+          <path d="M38 64 Q60 94 82 64 L78 88 Q60 102 42 88 Z" fill="#cbd5e1"/>
+          <path d="M22 115 Q60 80 98 115 Z" fill="#1e40af" stroke="#e4b94c" stroke-width="2.5"/>
+          <circle cx="51" cy="50" r="2.6" fill="#0f172a"/>
+          <circle cx="69" cy="50" r="2.6" fill="#0f172a"/>
+          <rect x="44" y="45" width="14" height="10" rx="4" fill="none" stroke="#e4b94c" stroke-width="2"/>
+          <rect x="62" y="45" width="14" height="10" rx="4" fill="none" stroke="#e4b94c" stroke-width="2"/>
+          <line x1="58" y1="50" x2="62" y2="50" stroke="#e4b94c" stroke-width="2"/>
+          <rect x="82" y="68" width="20" height="24" rx="3" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <line x1="86" y1="76" x2="98" y2="76" stroke="#b45309" stroke-width="2"/>
+          <line x1="86" y1="82" x2="98" y2="82" stroke="#b45309" stroke-width="2"/>
+        </svg>`,
+
+      lyra: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <path d="M32 54 Q60 14 88 54 L94 96 L26 96 Z" fill="#581c87"/>
+          <circle cx="60" cy="54" r="22" fill="#fde2c4"/>
+          <path d="M36 44 Q60 22 84 44" fill="#6b21a8"/>
+          <path d="M40 36 L60 26 L80 36" fill="none" stroke="#ffe184" stroke-width="3"/>
+          <circle cx="60" cy="27" r="4" fill="#34d399"/>
+          <circle cx="52" cy="54" r="2.6" fill="#1e1b4b"/>
+          <circle cx="68" cy="54" r="2.6" fill="#1e1b4b"/>
+          <path d="M54 64 Q60 69 66 64" fill="none" stroke="#be185d" stroke-width="2" stroke-linecap="round"/>
+          <path d="M24 115 Q60 82 96 115 Z" fill="#6d28d9" stroke="#ffe184" stroke-width="2.5"/>
+          <path d="M84 60 L102 40 L94 64 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="1.5"/>
+        </svg>`,
+
+      garrick: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <circle cx="60" cy="54" r="22" fill="#f5cfa0"/>
+          <path d="M35 44 Q60 20 85 44 L80 32 Q60 18 40 32 Z" fill="#78350f"/>
+          <rect x="34" y="34" width="52" height="10" rx="5" fill="#047857" stroke="#ffe184" stroke-width="2"/>
+          <circle cx="52" cy="54" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="54" r="2.6" fill="#0f172a"/>
+          <path d="M52 64 Q60 70 68 64" fill="none" stroke="#78350f" stroke-width="2.5" stroke-linecap="round"/>
+          <path d="M22 115 Q60 82 98 115 Z" fill="#065f46" stroke="#34d399" stroke-width="2.5"/>
+          <rect x="78" y="70" width="24" height="18" rx="3" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+          <line x1="82" y1="77" x2="98" y2="77" stroke="#34d399" stroke-width="2"/>
+          <line x1="82" y1="82" x2="94" y2="82" stroke="#ffe184" stroke-width="2"/>
+        </svg>`,
+
+      kael: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <path d="M28 52 Q60 12 92 52 L88 76 L32 76 Z" fill="#1e293b" stroke="#e4b94c" stroke-width="2"/>
+          <circle cx="60" cy="56" r="20" fill="#f1c29b"/>
+          <circle cx="52" cy="55" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="55" r="2.6" fill="#0f172a"/>
+          <path d="M54 66 L66 66" stroke="#7c2d12" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M22 115 Q60 82 98 115 Z" fill="#334155" stroke="#e4b94c" stroke-width="2.5"/>
+          <!-- Lupa mágica -->
+          <circle cx="88" cy="72" r="12" fill="rgba(56,189,248,0.28)" stroke="#ffe184" stroke-width="3"/>
+          <line x1="97" y1="81" x2="108" y2="92" stroke="#e4b94c" stroke-width="4" stroke-linecap="round"/>
+        </svg>`,
+
+      selene: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <path d="M30 56 Q60 14 90 56 L92 98 L28 98 Z" fill="#0f172a"/>
+          <circle cx="60" cy="54" r="21" fill="#fde2c4"/>
+          <path d="M38 45 Q60 22 82 45" fill="#1e3a8a"/>
+          <circle cx="52" cy="54" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="54" r="2.6" fill="#0f172a"/>
+          <path d="M55 64 Q60 68 65 64" fill="none" stroke="#9f1239" stroke-width="2" stroke-linecap="round"/>
+          <path d="M22 115 Q60 82 98 115 Z" fill="#1e3a8a" stroke="#60a5fa" stroke-width="2.5"/>
+          <!-- Escudo -->
+          <path d="M84 64 L104 64 L104 82 Q94 94 84 82 Z" fill="#1d4ed8" stroke="#ffe184" stroke-width="2.2"/>
+          <path d="M94 70 L94 84 M88 76 L100 76" stroke="#ffe184" stroke-width="2"/>
+        </svg>`
+    };
+
+    /* =======================================================================
+       2. DADOS DOS REINOS, 5 VIAJANTES (FALAS + FIXAÇÃO) E 15 QUESTÕES DO CHEFE
+       ======================================================================= */
+    const REALMS = [
+      {
+        id: 1,
+        title: 'Reino do Capítulo 16',
+        subtitle: 'Gerenciando Dados (Hulley et al., 4ª ed.)',
+        icon: '📜',
+        unlocked: true,
+        desc: 'Domine tabelas relacionais, dicionário de dados, captura eletrônica (eCRF), consultas SQL, limpeza de erros e confidencialidade.'
+      },
+      { id: 2, title: 'Reino do Capítulo 17', subtitle: 'Em breve', icon: '🗝️', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
+      { id: 3, title: 'Reino do Capítulo 18', subtitle: 'Em breve', icon: '🧭', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
+      { id: 4, title: 'Reino do Capítulo 19', subtitle: 'Em breve', icon: '⚗️', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
+      { id: 5, title: 'Reino do Capítulo 20', subtitle: 'Em breve', icon: '🛡️', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
+      { id: 6, title: 'O Oráculo das Visões', subtitle: 'Fase dos Vídeos (Em breve)', icon: '🔮', unlocked: false, desc: 'As gravações místicas serão desbloqueadas em breve.' }
+    ];
+
+    const MAP_COORDS = [
+      { x: 11, y: 74 }, // 0: Eldrin
+      { x: 28, y: 28 }, // 1: Lyra
+      { x: 46, y: 74 }, // 2: Garrick
+      { x: 64, y: 28 }, // 3: Kael
+      { x: 78, y: 70 }, // 4: Selene
+      { x: 90, y: 30 }  // 5: Malakor
+    ];
+
+    const TRAVELERS = [
+      {
+        id: 0,
+        shortName: 'Eldrin',
+        name: 'Eldrin, o Cartógrafo das Tabelas',
+        subtitle: 'Tabelas, Chave Principal, Normalização e Integridade Referencial',
+        themeKey: 'tabelas',
+        icon: '📐',
+        svgKey: 'eldrin',
+        speeches: [
+          'Saudações, jovem investigador! Todo banco de dados clínico nasce em tabelas: as **linhas** são os **registros** (sujeitos, eventos ou transações) e as **colunas** são os **campos** (atributos). A 1ª coluna costuma ser a **chave principal** — um código único sem significado externo (**IDsujeito**, **IDexame**, **IDlab**) que facilita desvincular dados pessoais e proteger a privacidade.',
+          'Se o estudo cabe em uma tabela única (1 linha por sujeito), chamamos de **arquivo plano**, ideal para planilhas ou pacotes estatísticos. Porém, quando há **medidas repetidas em número variável** — como avaliações de peso/altura ou trajetória de bilirrubina no estudo de **icterícia neonatal e QI aos 5 anos** — precisamos de um **banco de dados relacional** com múltiplas tabelas ligadas por **IDsujeito** numa relação **"um para muitos"**.',
+          'Estruturar múltiplas tabelas relacionadas chama-se **normalização**: na prática, transformar tabelas **"baixas e gordas"** em várias tabelas **"altas e magras"**. Isso elimina redundâncias e inconsistências — alterar uma data de nascimento em um só local atualiza tudo! Até **dados administrativos** (ligações, agendas, reembolsos) devem ficar em tabelas separadas.',
+          'Por fim, bancos relacionais garantem a **integridade referencial**: o sistema bloqueia a criação de um exame ou ligação para um **IDsujeito** inexistente e impede apagar um sujeito a menos que todos os seus registros vinculados também sejam removidos. Pronto para testar o que aprendeu?'
+        ],
+        summaryPoints: [
+          'Linhas = registros (sujeitos/eventos); Colunas = campos (atributos); 1ª coluna = chave principal (IDsujeito, IDexame, IDlab) sem significado externo.',
+          'Arquivo plano (tabela única) serve para planilhas/pacotes estatísticos; Banco relacional (relação um para muitos via IDsujeito) é essencial para medidas repetidas variáveis e dados administrativos (ligações, agendas, reembolsos).',
+          'Normalização: converter tabelas "baixas e gordas" em várias tabelas "altas e magras", eliminando redundância e inconsistência.',
+          'Integridade referencial: impede criar registros para sujeitos inexistentes ou apagar um sujeito deixando exames/avaliações órfãos.'
+        ],
+        quiz: [
+          {
+            question: 'No estudo de coorte sobre icterícia neonatal e escore de QI aos 5 anos, os pesquisadores desejam armazenar múltiplos exames seriados de bilirrubina e dezenas de ligações telefônicas para cada criança. Qual é a estrutura correta?',
+            options: [
+              'Um arquivo plano em planilha eletrônica, adicionando dezenas de novas colunas para cada novo exame.',
+              'Um banco de dados relacional normalizado em tabelas "altas e magras" ligadas por IDsujeito (relação um para muitos).',
+              'Uma tabela única sem chave principal, ligando os exames pelo primeiro nome da criança.',
+              'Guardar os dados administrativos fora do banco de dados, em arquivos de texto soltos.'
+            ],
+            correct: 1,
+            explanation: 'Medidas repetidas variáveis e dados administrativos exigem normalização em tabelas separadas ("altas e magras") conectadas à tabela de sujeitos por IDsujeito em relação um para muitos.'
+          },
+          {
+            question: 'Qual é a função exata da "integridade referencial" em um banco de dados relacional?',
+            options: [
+              'Restringir os valores do campo QI para o intervalo entre 40 e 200.',
+              'Fazer a entrada dupla de dados automaticamente.',
+              'Impedir a criação de exames/avaliações para um IDsujeito inexistente e evitar apagar um sujeito deixando registros vinculados órfãos.',
+              'Criptografar os backups armazenados fora da sede.'
+            ],
+            correct: 2,
+            explanation: 'A integridade referencial protege o vínculo entre tabelas, bloqueando registros órfãos tanto na inserção quanto na exclusão de sujeitos.'
+          }
+        ]
+      },
+      {
+        id: 1,
+        shortName: 'Lyra',
+        name: 'Lyra, a Guardiã do Dicionário',
+        subtitle: 'Dicionário de Dados, Domínios, Nomes e Elementos Comuns',
+        themeKey: 'dicionario',
+        icon: '✒️',
+        svgKey: 'lyra',
+        speeches: [
+          'Bem-vindo à minha biblioteca! Antes de digitar dados, você precisa de um **Dicionário de Dados** — uma tabela sobre o próprio banco, por isso chamada de **metadados**. Nele definimos, para cada campo: nome da tabela, nome do campo, **tipo de dado** (texto, data, sim/não, real, inteiro), descrição e **domínio**.',
+          'O **domínio** é a faixa de valores permitidos para cada campo, protegido por **regras de validação** (ou **"verificações de edição"**). Por exemplo: Sexo aceita só **"M" ou "F"**, QI aceita apenas **inteiros de 40 a 200**, e campos de data rejeitam automaticamente erros como **"31 de abril"**.',
+          'Ao criar **nomes de variáveis**, faça-os curtos para digitar e longos o bastante para serem autoexplicativos, **sem espaços nem caracteres especiais**. Use **InterCaps** (**JaFumou**) ou **underline** (**ja_fumou**) descrevendo o conteúdo — nunca a posição no formulário como **"Questao1"**! Textos longos ficam no rótulo da variável.',
+          'Por fim, conheça os **elementos comuns para dados**, promovidos por **NINDS, NCI, FDA, EMA** e pelo consórcio **CDISC**. Padronizar dicionários, tipos de dados e CRFs evita **"reinventar a roda"** em novos estudos e permite **compartilhar e combinar dados** entre pesquisas da mesma área.'
+        ],
+        summaryPoints: [
+          'Dicionário de dados (metadados): especifica nome da tabela, nome do campo, tipo de dado, descrição e domínio.',
+          'Domínio e verificações de edição (regras de validação): barram valores inválidos (ex.: Sexo "M"/"F", QI 40-200, rejeição de "31 de abril").',
+          'Nomes de variáveis: curtos e autoexplicativos, sem espaços/caracteres especiais, em InterCaps (JaFumou) ou underline (ja_fumou), descrevendo o conteúdo (não "Questao1").',
+          'Elementos comuns (NINDS, NCI, FDA, EMA, CDISC): padronizam dados e CRFs para evitar "reinventar a roda" e permitir combinar dados entre estudos.'
+        ],
+        quiz: [
+          {
+            question: 'Por que o dicionário de dados é chamado de "metadados" e o que são as "verificações de edição"?',
+            options: [
+              'Metadados são apenas variáveis de texto livre; verificações de edição são gráficos de análise.',
+              'É uma tabela com informações sobre o próprio banco de dados; verificações de edição são regras de validação que restringem cada campo ao seu domínio permitido.',
+              'Metadados substituem as tabelas de sujeitos; verificações de edição fazem o backup automático.',
+              'É o manual de privacidade do HIPAA; verificações de edição criptografam o servidor.'
+            ],
+            correct: 1,
+            explanation: 'O dicionário de dados descreve o próprio banco (metadados), e as verificações de edição (regras de validação) impedem entradas fora do domínio, como QI fora de 40-200 ou data "31 de abril".'
+          },
+          {
+            question: 'Qual nome de variável segue corretamente as boas práticas do Capítulo 16?',
+            options: [
+              'Questao1',
+              'Já Fumou Cigarros?',
+              'JaFumou ou ja_fumou',
+              'Q1 (Item A)'
+            ],
+            correct: 2,
+            explanation: 'Os nomes devem descrever o conteúdo (não a posição como Questao1), evitar espaços e caracteres especiais e usar InterCaps (JaFumou) ou underline (ja_fumou).'
+          }
+        ]
+      },
+      {
+        id: 2,
+        shortName: 'Garrick',
+        name: 'Garrick, o Escriba Digital',
+        subtitle: 'CRF/eCRF, Codificação, Dados Não CRF e Softwares',
+        themeKey: 'entrada',
+        icon: '📨',
+        svgKey: 'garrick',
+        speeches: [
+          'Olá, viajante! Na entrada de dados, formulários em papel (**CRF**) devem ser transcritos **logo após a coleta**, e a **entrada dupla** (total ou em **amostra aleatória**) detecta erros de digitação. Hoje, porém, preferimos a **captura eletrônica (eCRF)**: elimina a transcrição, aplica **validação imediata**, usa **lógica de pulos** e roda em tablets/celulares — podendo até imprimir um **"recibo/fotografia"** como documento-fonte.',
+          'Prefira **respostas codificadas** ao texto livre (texto livre só no pré-teste). As opções devem ser **exaustivas** (incluir **"outro"**) e **mutuamente exclusivas**. Menus **drop-down** economizam tela, mas são ruins para imprimir — para papel, use lista de escolhas ou grupo de opções (**botões de rádio**).',
+          'Evite questões **"Todas as alternativas que se aplicam"** (**checkboxes**): uma caixa em branco gera dúvida entre "não se aplica" e "não respondido"! Prefira **Sim/Não** para cada item com **0 = não/ausente** e **1 = sim/presente** (assim a média equivale à proporção). Já dados já eletrônicos (laboratórios, prontuários, **DEXA**, **Holter**) devem ser importados em lote como **dados não CRF**.',
+          'Lembre-se: **Back-end** são as tabelas e **Front-end** são os formulários. Planilhas (Excel, Google Sheets) e estatísticos (SAS, SPSS, Stata, R, EpiInfo) servem para tabelas simples; Access/Filemaker e SQL (Oracle, SQL Server, MySQL, PostgreSQL) gerenciam múltiplas tabelas. O **REDCap** é gratuito/acadêmico ("faça você mesmo"), mas usa tabela única com eventos fixos, sendo limitado para medidas repetidas variáveis e consultas complexas — onde **QuesGen, MediData RAVE e Oracle InForm** brilham!'
+        ],
+        summaryPoints: [
+          'CRF em papel exige transcrição rápida (entrada dupla total ou em amostra aleatória). eCRF elimina transcrição, traz validação imediata, lógica de pulos e permite imprimir recibo/documento-fonte.',
+          'Respostas codificadas devem ser exaustivas ("outro") e mutuamente exclusivas. Drop-down não serve para impressão. Evitar checkboxes "todas que se aplicam"; usar Sim/Não com 0 = não e 1 = sim (média = proporção).',
+          'Dados não CRF: importação direta em lote (batch-uploaded) de dados já eletrônicos (lab, prontuário, DEXA, Holter).',
+          'Back-end (tabelas) vs Front-end (formulários). REDCap (acadêmico gratuito, tabela única/eventos fixos) tem limitações para muitas medidas repetidas variáveis e consultas complexas, diferentemente de QuesGen, MediData RAVE e Oracle InForm.'
+        ],
+        quiz: [
+          {
+            question: 'Por que o Capítulo 16 desaconselha questões "Todas as alternativas que se aplicam" (checkboxes) e recomenda codificar Sim/Não como 0 e 1?',
+            options: [
+              'Porque checkboxes não existem em formulários on-line e 0/1 ocupam menos memória.',
+              'Porque um checkbox não marcado é ambíguo ("não se aplica" vs. "não respondido"), e com 0 = não e 1 = sim a média da variável corresponde à proporção do atributo.',
+              'Porque menus drop-down são ideais para impressão em papel e 0/1 impedem o cálculo de proporções.',
+              'Porque checkboxes violam a regra de integridade referencial do SQL.'
+            ],
+            correct: 1,
+            explanation: 'Sem resposta explícita Sim/Não, um item desmarcado pode ser "não se aplica" ou dado faltante. Com 0 = ausente e 1 = presente, a média estatística é diretamente a proporção.'
+          },
+          {
+            question: 'Como são chamados os dados já eletrônicos (como resultados de laboratório, DEXA e Holter) importados em lote para o banco, e qual é uma limitação do REDCap citada no Capítulo 16?',
+            options: [
+              'Dados front-end; o REDCap é pago e exclusivo para grandes indústrias farmacêuticas.',
+              'Dados não CRF (batch-uploaded); o REDCap é estruturado em tabela única com número fixo de eventos, sendo limitado para medidas repetidas variáveis e consultas sofisticadas.',
+              'Metadados brutos; o REDCap não permite exportar dados para pacotes estatísticos.',
+              'Arquivos planos; o REDCap não possui registro de auditoria.'
+            ],
+            correct: 1,
+            explanation: 'Importações eletrônicas em lote são chamadas de "dados não CRF". O REDCap é gratuito/acadêmico, mas limitado para grande número variável de medidas repetidas e consultas complexas.'
+          }
+        ]
+      },
+      {
+        id: 3,
+        shortName: 'Kael',
+        name: 'Kael, o Caçador de Erros',
+        subtitle: 'Consultas SQL, Pré-teste, Limpeza Iterativa e Variáveis Derivadas',
+        themeKey: 'consultas',
+        icon: '🔍',
+        svgKey: 'kael',
+        speeches: [
+          'Olhos atentos, explorador! Depois da coleta, usamos **consultas (queries)** em **SQL** para unir tabelas, filtrar, ordenar e calcular valores (como idade em meses, IMC e percentis). No modelo relacional, o resultado de uma consulta tem formato de tabela — pronto para exportar **sem identificadores pessoais**.',
+          'Antes de iniciar o estudo real, todo o sistema deve passar por **pré-testagem com dados fictícios** — exigência regulatória do FDA (**21 CFR 11**). Durante o estudo, a **limpeza de dados** é um processo **iterativo** para caçar **valores faltantes**, **outliers** (valores extremos ainda dentro da faixa permitida, como 35 kg aos 5 anos) e **erros de cruzamento de campos**.',
+          'Veja o exemplo clássico: uma criança de 5 anos com **30 a 35 kg e 100 cm** (IMC 35, percentil 100). Isoladamente os números parecem aceitáveis, mas cruzados revelam inconsistência! Também comparamos **médias e medianas entre investigadores e centros** para flagrar erros sistemáticos.',
+          'Na limpeza, priorize variáveis críticas (como o **desfecho** em um ECR). Se houver correção em papel, assinale com **tinta vermelha, data e assinatura**. Ao final, o banco é declarado **final/congelado**. Na análise, criam-se **variáveis derivadas** (ex.: **IMC > 25**, agrupar antibióticos, **anos-maços**) e manejam-se dados faltantes (**"não sei"**) de modo consistente.'
+        ],
+        summaryPoints: [
+          'Consultas (queries) em SQL unem tabelas, filtram, ordenam e calculam valores (idade, IMC, percentis), gerando resultados em tabela sem identificadores pessoais.',
+          'Pré-testagem com dados fictícios de todo o sistema é exigência do FDA (21 CFR 11).',
+          'Limpeza iterativa busca faltantes, outliers (extremos dentro da faixa, ex.: 35 kg aos 5 anos) e inconsistências de cruzamento de campos (ex.: 30-35 kg e 100 cm -> IMC 35, percentil 100), além de comparar médias/medianas entre centros.',
+          'Priorizar variáveis críticas (desfecho); correção em papel = tinta vermelha, data e assinatura; banco final = congelado. Análise cria variáveis derivadas (IMC > 25, anos-maços) e trata "não sei" consistentemente.'
+        ],
+        quiz: [
+          {
+            question: 'Uma consulta SQL encontrou uma criança de 5 anos com peso de 35 kg e estatura de 100 cm (IMC = 35,0; percentil 100), embora ambos os números tenham passado pelas regras individuais de validação. Que problema foi detectado?',
+            options: [
+              'Falha na integridade referencial por chave ausente.',
+              'Um outlier e uma inconsistência no cruzamento de campos, revelando a necessidade de checar documentos-fonte.',
+              'Erro de nomeação de variável sem InterCaps.',
+              'Falta de backup fora da sede.'
+            ],
+            correct: 1,
+            explanation: 'Sistemas muitas vezes não validam o cruzamento entre campos; consultas que calculam IMC e percentis expõem outliers e combinações biologicamente implausíveis.'
+          },
+          {
+            question: 'Sobre a limpeza e análise dos dados no Capítulo 16, qual alternativa está CORRETA?',
+            options: [
+              'Em formulários em papel, erros devem ser apagados com corretivo líquido para não sujar a folha.',
+              'O banco de dados nunca deve ser congelado para permitir alterações após a publicação.',
+              'A limpeza é iterativa, prioriza variáveis críticas (como o desfecho), compara médias/medianas entre centros para achar erros sistemáticos e termina com o banco declarado final/congelado.',
+              'O pré-teste com dados fictícios só é feito após o término da coleta real.'
+            ],
+            correct: 2,
+            explanation: 'A limpeza prioriza o desfecho, compara centros/investigadores, registra mudanças em papel com tinta vermelha/data/assinatura e finaliza com o congelamento do banco.'
+          }
+        ]
+      },
+      {
+        id: 4,
+        shortName: 'Selene',
+        name: 'Selene, a Protetora dos Segredos',
+        subtitle: 'Confidencialidade (HIPAA), Auditoria, Backups e Arquivamento',
+        themeKey: 'seguranca',
+        icon: '🛡️',
+        svgKey: 'selene',
+        speeches: [
+          'Chegou à última parada antes de Malakor! Proteger a **confidencialidade** dos participantes é dever **ético e legal** (e para pacientes, amparado pelo **HIPAA Privacy Rule**). O **IDsujeito** não pode ter **nenhum significado externo**: jamais use nome, iniciais, data de nascimento ou número do prontuário!',
+          'Sempre **remova identificadores pessoais** antes de compartilhar dados e mantenha-os em **tabela separada** em **servidores seguros**, com **login e senha individuais** para cada membro da equipe e **controle de perfis de usuário** (quem pode ver, editar ou exportar).',
+          'Todo sistema eletrônico deve manter uma **trilha de auditoria** automática registrando **QUEM** modificou, **QUANDO** modificou e **QUAL** alteração foi feita — uma exigência regulatória em ensaios clínicos de novos medicamentos.',
+          'Para nunca perder anos de pesquisa, faça **backups regulares**, armazene-os **fora da sede** e **teste-os periodicamente mediante restauração**. Ao fim do estudo, faça o **arquivamento final** guardando: **dados originais**, **dicionário de dados**, **banco final** e **análises**. Agora você está pronto para enfrentar Malakor!'
+        ],
+        summaryPoints: [
+          'Confidencialidade (HIPAA Privacy Rule + dever ético/legal): IDsujeito sem significado externo (nunca nome, iniciais, data de nascimento ou nº de prontuário).',
+          'Remover identificadores antes de compartilhar; servidores seguros com login/senha individuais e controle de perfis de acesso.',
+          'Trilha de auditoria: registra quem modificou, quando e qual alteração foi feita (exigência regulatória em ensaios de novos medicamentos).',
+          'Backups regulares armazenados fora da sede e testados periodicamente por restauração. Arquivamento final: dados originais, dicionário de dados, banco final e análises.'
+        ],
+        quiz: [
+          {
+            question: 'Qual prática abaixo VIOLA gravemente as regras de confidencialidade e segurança do Capítulo 16?',
+            options: [
+              'Criar um IDsujeito usando as iniciais do paciente + ano de nascimento (ex.: "JPS_1988") ou o número do prontuário.',
+              'Guardar identificadores pessoais em tabela separada em servidor seguro com login e senha individuais.',
+              'Configurar perfis de usuário no REDCap/QuesGen para impedir a exportação de nomes.',
+              'Apagar todos os campos de identificação pessoal antes de enviar o banco para análise externa.'
+            ],
+            correct: 0,
+            explanation: 'O IDsujeito não deve ter nenhum significado externo ao banco — jamais incorporar nome, iniciais, data de nascimento ou número de prontuário.'
+          },
+          {
+            question: 'O que a trilha de auditoria deve registrar e quais itens compõem o arquivamento final do estudo?',
+            options: [
+              'Auditoria registra apenas a data final; arquiva-se somente o artigo publicado.',
+              'Auditoria registra quem modificou, quando e qual alteração foi feita; arquivam-se os dados originais, o dicionário de dados, o banco final e as análises.',
+              'Auditoria registra apenas senhas dos usuários; arquiva-se somente a tabela de nomes.',
+              'Auditoria é opcional em ensaios de medicamentos; backups nunca precisam ser testados.'
+            ],
+            correct: 1,
+            explanation: 'A auditoria documenta quem, quando e o que mudou. No encerramento, arquivam-se dados originais, dicionário de dados, banco final e análises.'
+          }
+        ]
+      }
+    ];
+
+    /* 15 Questões do Simulado contra Malakor (0..9 = 1ª batalha | 10..14 = 5 inéditas para revanche) */
+    const BOSS_QUESTIONS = [
+      {
+        id: 0,
+        themeKey: 'tabelas',
+        topic: 'Normalização e Tabelas',
+        question: 'Um estudo clínico acompanhará 300 pacientes com número variável de exames laboratoriais, uso de medicamentos e dezenas de ligações telefônicas administrativas. Segundo o Capítulo 16, qual arquitetura de banco de dados deve ser adotada?',
+        options: [
+          'Um arquivo plano em planilha eletrônica com 1 linha por sujeito e novas colunas adicionadas a cada novo exame.',
+          'Um banco relacional normalizado com múltiplas tabelas "altas e magras" (Sujeitos, Exames, Ligações) vinculadas por IDsujeito em relação um para muitos.',
+          'Uma tabela única repetindo nome e data de nascimento em cada linha de exame para facilitar a leitura.',
+          'Excluir os dados administrativos do banco, pois bancos clínicos não devem armazenar agendas nem ligações.'
+        ],
+        correct: 1,
+        explanation: 'A normalização converte tabelas "baixas e gordas" em tabelas "altas e magras" conectadas por IDsujeito (relação um para muitos), acomodando medidas repetidas variáveis e dados administrativos sem redundância.'
+      },
+      {
+        id: 1,
+        themeKey: 'tabelas',
+        topic: 'Integridade Referencial',
+        question: 'Ao tentar cadastrar um exame laboratorial para o IDsujeito "8841" — que ainda não foi inserido na tabela Sujeitos — o sistema bloqueia a operação. Que recurso do banco de dados relacional atuou?',
+        options: [
+          'Lógica de pulos (skip logic).',
+          'Validação com cruzamento de campos.',
+          'Integridade referencial.',
+          'Entrada dupla de dados.'
+        ],
+        correct: 2,
+        explanation: 'A integridade referencial impede a criação de registros vinculados (exames, avaliações, ligações) para sujeitos inexistentes na tabela principal.'
+      },
+      {
+        id: 2,
+        themeKey: 'dicionario',
+        topic: 'Dicionário de Dados e Domínio',
+        question: 'No modo design de um banco de dados clínico, o campo "Sexo" aceita apenas "M" ou "F", "QI" aceita inteiros entre 40 e 200 e o campo de data rejeita "31 de abril". Esses mecanismos correspondem a:',
+        options: [
+          'Definição de domínio e regras de validação ("verificações de edição") no dicionário de dados.',
+          'Normalização de tabelas e chave estrangeira.',
+          'Importação de dados não CRF em lote.',
+          'Criptografia HIPAA e backup fora da sede.'
+        ],
+        correct: 0,
+        explanation: 'O dicionário de dados (metadados) especifica o domínio (faixa permitida) de cada campo e aplica regras de validação ("verificações de edição") para barrar entradas impossíveis.'
+      },
+      {
+        id: 3,
+        themeKey: 'dicionario',
+        topic: 'Elementos Comuns (CDISC / NINDS)',
+        question: 'Por que organizações como NINDS, NCI, FDA, EMA e CDISC desenvolvem "elementos comuns para os dados" na pesquisa clínica?',
+        options: [
+          'Para obrigar todos os pesquisadores a usar planilhas Excel em vez de bancos SQL.',
+          'Para padronizar estruturas, dicionários e CRFs, evitando "reinventar a roda" e permitindo compartilhar e combinar dados de diferentes estudos.',
+          'Para dispensar o uso de formulários eletrônicos (eCRFs) em ensaios multicêntricos.',
+          'Para substituir o cálculo de variáveis derivadas na análise estatística.'
+        ],
+        correct: 1,
+        explanation: 'Os elementos comuns padronizam nomes, definições e instrumentos de coleta, eliminando retrabalho e permitindo combinar dados de estudos distintos na mesma área clínica.'
+      },
+      {
+        id: 4,
+        themeKey: 'entrada',
+        topic: 'Codificação e Formulários (eCRF)',
+        question: 'Ao desenhar um eCRF que também poderá ser impresso em papel em caso de queda de energia, qual escolha de design está CORRETA segundo o Capítulo 16?',
+        options: [
+          'Usar menus drop-down em todas as questões, pois exibem todas as opções quando impressos em papel.',
+          'Usar questões "Marque todas as alternativas que se aplicam" (checkboxes) para evitar ambiguidade.',
+          'Preferir respostas codificadas exaustivas (com "outro") e mutuamente exclusivas em grupos de opções/lista de escolhas, e itens Sim/Não codificados como 0 (não) e 1 (sim).',
+          'Permitir texto livre em todas as variáveis categóricas para acelerar a análise estatística.'
+        ],
+        correct: 2,
+        explanation: 'Drop-downs não mostram opções no papel; checkboxes geram ambiguidade ("não se aplica" vs "não respondido"). Grupos de opções/listas servem para impressão, e Sim/Não em 0/1 faz a média equivaler à proporção.'
+      },
+      {
+        id: 5,
+        themeKey: 'entrada',
+        topic: 'Softwares e REDCap',
+        question: 'Em relação às plataformas on-line de gerenciamento de dados discutidas no Capítulo 16, qual afirmação sobre o REDCap é CORRETA?',
+        options: [
+          'É uma ferramenta corporativa paga, recomendada apenas para a indústria farmacêutica.',
+          'É gratuito para uso acadêmico ("faça você mesmo"), mas estruturado em tabela única com número fixo de eventos, sendo limitado para grande número variável de medidas repetidas e consultas complexas.',
+          'Substitui completamente plataformas como MediData RAVE e Oracle InForm em qualquer ensaio com centenas de exames repetidos variáveis.',
+          'Não permite criar questionários on-line nem exportar dados para pacotes estatísticos.'
+        ],
+        correct: 1,
+        explanation: 'O REDCap é excelente para uso acadêmico, mas o livro aponta sua limitação para medidas repetidas muito variáveis e validações/consultas sofisticadas, cenários em que QuesGen, MediData RAVE ou Oracle InForm se destacam.'
+      },
+      {
+        id: 6,
+        themeKey: 'consultas',
+        topic: 'Consultas SQL e Cruzamento de Campos',
+        question: 'Uma consulta SQL filtrou meninos examinados em fevereiro, calculou idade em meses, IMC e percentis, e revelou um participante de 5 anos com 35 kg e 100 cm (IMC 35,0; percentil 100). O que esse caso demonstra?',
+        options: [
+          'Que valores podem passar pelas regras de validação de campo único e ainda assim ser outliers ou inconsistentes no cruzamento de campos, exigindo consultas de monitoramento.',
+          'Que o SQL não consegue realizar cálculos derivados nem unir tabelas.',
+          'Que valores extremos devem ser deletados automaticamente sem conferir os documentos-fonte.',
+          'Que o banco de dados precisa incluir o nome completo do sujeito na consulta para exportar ao pacote estatístico.'
+        ],
+        correct: 0,
+        explanation: 'Muitos sistemas não fazem validação com cruzamento de campos; consultas SQL são indispensáveis para detectar outliers e inconsistências entre variáveis (como peso vs. estatura).'
+      },
+      {
+        id: 7,
+        themeKey: 'consultas',
+        topic: 'Pré-teste e Comparação entre Centros',
+        question: 'Antes de iniciar a coleta de um ensaio clínico submetido ao FDA (21 CFR 11), e durante a coleta em múltiplos centros, quais duas práticas são recomendadas pelo Capítulo 16?',
+        options: [
+          'Dispensar testes prévios e comparar apenas o número de páginas impressas por centro.',
+          'Pré-testar todo o sistema com dados fictícios antes da coleta e comparar médias e medianas entre investigadores/centros para detectar erros sistemáticos.',
+          'Congelar o banco antes de corrigir o desfecho e excluir qualquer centro com média diferente.',
+          'Usar texto livre para todas as medidas contínuas e evitar variáveis derivadas.'
+        ],
+        correct: 1,
+        explanation: 'O pré-teste com dados fictícios é exigência regulatória (21 CFR 11), e comparar médias/medianas entre centros e investigadores revela vieses ou diferenças sistemáticas de medição.'
+      },
+      {
+        id: 8,
+        themeKey: 'seguranca',
+        topic: 'Confidencialidade e HIPAA',
+        question: 'Qual conduta garante corretamente a confidencialidade dos participantes (HIPAA Privacy Rule e dever ético/legal) ao gerenciar e compartilhar um banco de dados clínico?',
+        options: [
+          'Usar o número do prontuário hospitalar como IDsujeito, pois prontuários são códigos numéricos.',
+          'Atribuir um IDsujeito sem significado externo, guardar identificadores pessoais em tabela separada em servidor seguro com login/senha individuais e removê-los antes de compartilhar.',
+          'Usar uma senha única para toda a equipe de pesquisa para facilitar o acesso ao servidor.',
+          'Codificar o IDsujeito com as iniciais e a data de nascimento do paciente para evitar trocas.'
+        ],
+        correct: 1,
+        explanation: 'O IDsujeito nunca deve conter nome, iniciais, data de nascimento ou nº de prontuário. Identificadores ficam restritos em servidor seguro com credenciais individuais e são removidos antes do compartilhamento.'
+      },
+      {
+        id: 9,
+        themeKey: 'seguranca',
+        topic: 'Auditoria e Backups',
+        question: 'Em ensaios clínicos de novos medicamentos, quais informações a trilha de auditoria deve registrar e qual prática garante que os backups realmente funcionem?',
+        options: [
+          'Apenas o nome do coordenador; salvar o backup em uma pasta no mesmo computador.',
+          'Quem modificou, quando modificou e qual alteração foi feita; armazenar backups regularmente fora da sede e testá-los periodicamente mediante restauração.',
+          'Apenas o horário de login; fazer backup uma única vez ao encerrar o estudo.',
+          'Apenas alterações nas datas de visita; imprimir o banco inteiro toda semana.'
+        ],
+        correct: 1,
+        explanation: 'A auditoria registra quem, quando e qual modificação foi feita. Backups regulares devem ficar fora da sede e ser testados periodicamente por meio de restauração.'
+      },
+      // --- 5 Questões Inéditas da Reserva (para revanches) ---
+      {
+        id: 10,
+        themeKey: 'tabelas',
+        topic: 'Estrutura Tabular (Inédita)',
+        question: 'Sobre a estrutura básica dos bancos de dados clínicos no Capítulo 16, assinale a alternativa CORRETA:',
+        options: [
+          'As colunas representam os sujeitos (registros) e as linhas representam os atributos (campos).',
+          'As linhas correspondem aos registros (sujeitos/eventos), as colunas correspondem aos campos (atributos), e a chave principal identifica univocamente cada linha.',
+          'O termo "arquivo plano" refere-se a bancos relacionais com mais de cinco tabelas.',
+          'Um banco relacional impede que existam sujeitos sem nenhuma avaliação registrada.'
+        ],
+        correct: 1,
+        explanation: 'Linhas = registros; colunas = campos; chave principal = identificador único da linha. Bancos relacionais acomodam facilmente sujeitos que não realizaram avaliações.'
+      },
+      {
+        id: 11,
+        themeKey: 'dicionario',
+        topic: 'Nomes de Variáveis (Inédita)',
+        question: 'Um pesquisador nomeou as colunas de seu banco como "Questao1", "Questao2" e "Questao3". Qual é a recomendação do Capítulo 16 para melhorar esse banco?',
+        options: [
+          'Manter "Questao1", pois softwares estatísticos não aceitam letras em nomes de variáveis.',
+          'Substituir por nomes curtos e autoexplicativos que descrevam o conteúdo (ex.: "JaFumou" em InterCaps ou "ja_fumou" com underline), sem espaços/caracteres especiais, usando rótulos para descrições longas.',
+          'Usar frases completas com espaços e acentos como nome da variável.',
+          'Apagar o dicionário de dados para evitar redundância.'
+        ],
+        correct: 1,
+        explanation: 'Nomes de variáveis devem descrever o campo (não sua posição no questionário), evitando espaços/caracteres especiais e usando InterCaps ou underline.'
+      },
+      {
+        id: 12,
+        themeKey: 'entrada',
+        topic: 'Entrada Dupla e Dados Não CRF (Inédita)',
+        question: 'Quando um estudo ainda utiliza formulários em papel (CRF) e também recebe resultados eletrônicos do laboratório e de exames DEXA, qual estratégia é recomendada?',
+        options: [
+          'Imprimir os exames de laboratório e DEXA para redigitá-los manualmente no banco.',
+          'Fazer entrada dupla (total ou em amostra aleatória) para conferir a fidelidade da transcrição do papel, e importar diretamente em lote (dados não CRF) os dados já eletrônicos.',
+          'Esperar o fim do estudo para transcrever os formulários de papel de uma só vez.',
+          'Enviar os formulários de papel sem criptografia por redes públicas.'
+        ],
+        correct: 1,
+        explanation: 'A entrada dupla (ou em amostra aleatória) verifica a transcrição do papel sem custo excessivo, enquanto dados já eletrônicos (lab, DEXA, Holter) devem ser importados diretamente em lote (dados não CRF).'
+      },
+      {
+        id: 13,
+        themeKey: 'consultas',
+        topic: 'Correção 
