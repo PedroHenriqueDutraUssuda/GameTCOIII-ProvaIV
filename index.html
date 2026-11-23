@@ -1403,17 +1403,17 @@
     </section>
 
     <!-- ---------------------------------------------------------------------
-         TELA 2: MAPA INTERATIVO DA FASE 1 (CAPÍTULO 16)
+         TELA 2: MAPA INTERATIVO DA FASE ATUAL (CAPÍTULO 16 OU 17)
          --------------------------------------------------------------------- -->
     <section id="view-map" class="hidden view-enter">
       <div class="map-header">
         <div>
           <button class="btn btn-slate btn-sm" onclick="navigateTo('hub')" style="margin-bottom:8px;">← Mapa dos Reinos</button>
-          <h2 class="epic-title" style="font-size:clamp(1.35rem,3vw,2rem);color:var(--gold-bright);">Fase 1: Reino do Capítulo 16</h2>
-          <p style="font-size:0.88rem;color:var(--text-muted);"><em>Gerenciando Dados</em> — Hulley et al., Delineando a Pesquisa Clínica (4ª ed.)</p>
+          <h2 id="map-phase-title" class="epic-title" style="font-size:clamp(1.35rem,3vw,2rem);color:var(--gold-bright);">Fase 1: Reino do Capítulo 16</h2>
+          <p id="map-phase-subtitle" style="font-size:0.88rem;color:var(--text-muted);"><em>Gerenciando Dados</em> — Hulley et al., Delineando a Pesquisa Clínica (4ª ed.)</p>
         </div>
         <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <button class="btn btn-arcane" onclick="openBossIntro()">⚔️ Enfrentar Malakor (Mini-Chefão)</button>
+          <button id="btn-map-boss" class="btn btn-arcane" onclick="openBossIntro()">⚔️ Enfrentar Malakor (Mini-Chefão)</button>
         </div>
       </div>
 
@@ -1555,15 +1555,15 @@
     </section>
 
     <!-- ---------------------------------------------------------------------
-         TELA 4: BATALHA CONTRA O MINI-CHEFÃO (MALAKOR)
+         TELA 4: BATALHA CONTRA O MINI-CHEFÃO (MALAKOR / VEXAR)
          --------------------------------------------------------------------- -->
     <section id="view-boss" class="hidden view-enter">
       <!-- Intro do Mini-Chefão -->
       <div id="boss-intro" class="rpg-panel" style="max-width:780px;margin:0 auto;padding:28px 24px;text-align:center;">
         <div style="width:120px;height:120px;margin:0 auto 12px;" id="boss-intro-svg"></div>
-        <span class="badge badge-crimson">Mini-Chefão • Capítulo 16</span>
-        <h2 class="epic-title" style="font-size:clamp(1.45rem,3vw,2.1rem);color:#fff;margin:8px 0;">Malakor, o Devorador de Dados</h2>
-        <p style="color:#cbd5e1;max-width:580px;margin:0 auto 20px;font-size:0.95rem;">
+        <span id="boss-intro-badge" class="badge badge-crimson">Mini-Chefão • Capítulo 16</span>
+        <h2 id="boss-intro-title" class="epic-title" style="font-size:clamp(1.45rem,3vw,2.1rem);color:#fff;margin:8px 0;">Malakor, o Devorador de Dados</h2>
+        <p id="boss-intro-quote" style="color:#cbd5e1;max-width:580px;margin:0 auto 20px;font-size:0.95rem;">
           “Planilhas desnormalizadas e dados corrompidos alimentam meu poder! Enfrente meu simulado de <strong>10 questões</strong> e prove seu domínio sobre o Capítulo 16.”
         </p>
 
@@ -1574,7 +1574,7 @@
           </div>
           <div style="padding:14px;border-radius:12px;background:rgba(10,16,30,0.85);border:1px solid rgba(139,92,246,0.4);">
             <strong style="color:var(--arcane-bright);font-size:0.86rem;">🔮 Recompensa</strong>
-            <p style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;"><strong>Artefato 1/6:</strong> O Pergaminho da Normalização + 200 XP.</p>
+            <p id="boss-intro-reward" style="font-size:0.8rem;color:var(--text-muted);margin-top:4px;"><strong>Artefato 1/6:</strong> O Pergaminho da Normalização + 200 XP.</p>
           </div>
           <div style="padding:14px;border-radius:12px;background:rgba(10,16,30,0.85);border:1px solid rgba(239,68,68,0.4);">
             <strong style="color:#fca5a5;font-size:0.86rem;">🛡️ Se tirar ≤ 70%</strong>
@@ -1603,10 +1603,10 @@
             <span id="boss-topic-badge" class="badge badge-arcane">Tema</span>
           </div>
 
-          <!-- Barra de HP do Malakor com rastro amarelo de dano -->
+          <!-- Barra de HP do Mini-Chefão com rastro amarelo de dano -->
           <div class="boss-hp-container">
             <div class="boss-hp-header">
-              <span class="epic-title" style="color:#fca5a5;">👹 Malakor, o Devorador de Dados</span>
+              <span id="boss-hp-name" class="epic-title" style="color:#fca5a5;">👹 Malakor, o Devorador de Dados</span>
               <span id="boss-hp-label" style="color:#fde047;">HP: 100 / 100</span>
             </div>
             <div class="boss-hp-track">
@@ -1620,7 +1620,7 @@
             </div>
           </div>
 
-          <!-- Palco Visual: Herói vs Malakor -->
+          <!-- Palco Visual: Herói vs Mini-Chefão -->
           <div id="arena-stage" class="arena-stage">
             <div class="fighter-slot">
               <div id="hero-sprite" class="hero-sprite"></div>
@@ -1629,7 +1629,7 @@
 
             <div class="fighter-slot">
               <div id="boss-sprite" class="boss-sprite"></div>
-              <span style="font-size:0.72rem;font-weight:700;color:#fca5a5;margin-top:4px;">Malakor</span>
+              <span id="boss-slot-name" style="font-size:0.72rem;font-weight:700;color:#fca5a5;margin-top:4px;">Malakor</span>
             </div>
           </div>
         </div>
@@ -1652,7 +1652,7 @@
   </main>
 
   <!-- =======================================================================
-       MODAL DO GRIMÓRIO
+       MODAL DO GRIMÓRIO (COM ABAS CAP. 16 E CAP. 17)
        ======================================================================= -->
   <div id="modal-grimoire" class="modal-backdrop hidden" onclick="if(event.target===this) closeGrimoire()">
     <div class="rpg-panel modal-box">
@@ -1660,11 +1660,15 @@
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="font-size:1.5rem;">📖</span>
           <div>
-            <h2 class="epic-title" style="font-size:1.15rem;color:var(--gold-bright);">Grimório do Capítulo 16</h2>
+            <h2 class="epic-title" style="font-size:1.15rem;color:var(--gold-bright);">Grimório do Conhecimento</h2>
             <p style="font-size:0.76rem;color:var(--text-muted);">Todos os ensinamentos desbloqueados dos viajantes</p>
           </div>
         </div>
         <button class="btn btn-slate btn-sm" onclick="closeGrimoire()">✕ Fechar</button>
+      </div>
+      <div id="grimoire-tabs" style="display:flex;gap:8px;padding:12px 20px 0;background:rgba(9,13,27,0.65);border-bottom:1px solid var(--gold-dim);">
+        <button id="gtab-1" class="btn btn-gold btn-sm" style="border-radius:10px 10px 0 0;" onclick="switchGrimoireTab(1)">📜 Cap. 16 (Dados)</button>
+        <button id="gtab-2" class="btn btn-slate btn-sm" style="border-radius:10px 10px 0 0;" onclick="switchGrimoireTab(2)">⚒️ Cap. 17 (Qualidade)</button>
       </div>
       <div id="grimoire-body" class="modal-body"></div>
     </div>
@@ -1830,11 +1834,112 @@
           <!-- Escudo -->
           <path d="M84 64 L104 64 L104 82 Q94 94 84 82 Z" fill="#1d4ed8" stroke="#ffe184" stroke-width="2.2"/>
           <path d="M94 70 L94 84 M88 76 L100 76" stroke="#ffe184" stroke-width="2"/>
+        </svg>`,
+
+      /* --- SVGs Exclusivos da Fase 2 (Capítulo 17) --- */
+      vexar: `
+        <svg viewBox="0 0 140 145" width="100%" height="100%">
+          <defs>
+            <radialGradient id="vexarCore" cx="50%" cy="45%" r="55%">
+              <stop offset="0%" stop-color="#dc2626"/>
+              <stop offset="65%" stop-color="#7f1d1d"/>
+              <stop offset="100%" stop-color="#111827"/>
+            </radialGradient>
+          </defs>
+          <circle cx="70" cy="74" r="56" fill="rgba(239,68,68,0.18)"/>
+          <!-- Coroa de engrenagens quebradas -->
+          <path d="M34 40 L48 16 L60 34 L70 12 L80 34 L92 16 L106 40 Z" fill="#1f2937" stroke="#f59e0b" stroke-width="2.2"/>
+          <!-- Armadura do Caos -->
+          <path d="M26 66 Q70 22 114 66 L122 126 Q98 114 84 130 Q70 114 56 130 Q42 114 18 126 Z" fill="url(#vexarCore)" stroke="#f59e0b" stroke-width="2.4"/>
+          <!-- Elmo -->
+          <path d="M44 56 Q70 40 96 56 L92 92 Q70 104 48 92 Z" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+          <!-- Olhos flamejantes -->
+          <polygon points="50,67 65,71 53,78" fill="#fde047"/>
+          <polygon points="90,67 75,71 87,78" fill="#fde047"/>
+          <!-- Símbolo de protocolo rasgado -->
+          <rect x="54" y="100" width="32" height="16" rx="3" fill="rgba(245,158,11,0.2)" stroke="#fde047" stroke-width="1.5"/>
+          <path d="M60 104 L80 112 M80 104 L60 112" stroke="#ef4444" stroke-width="2.4" stroke-linecap="round"/>
+        </svg>`,
+
+      aldric: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <circle cx="60" cy="52" r="22" fill="#f5cfa0"/>
+          <path d="M36 46 Q60 18 84 46" fill="#475569"/>
+          <path d="M40 66 Q60 88 80 66 L76 84 Q60 94 44 84 Z" fill="#64748b"/>
+          <path d="M22 115 Q60 80 98 115 Z" fill="#7c2d12" stroke="#ffe184" stroke-width="2.5"/>
+          <circle cx="52" cy="51" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="51" r="2.6" fill="#0f172a"/>
+          <!-- Planta arquitetônica / Prancheta -->
+          <rect x="80" y="66" width="24" height="28" rx="3" fill="#1e3a8a" stroke="#93c5fd" stroke-width="2"/>
+          <line x1="85" y1="74" x2="99" y2="74" stroke="#ffe184" stroke-width="1.8"/>
+          <line x1="85" y1="81" x2="99" y2="81" stroke="#93c5fd" stroke-width="1.8"/>
+          <line x1="85" y1="88" x2="95" y2="88" stroke="#93c5fd" stroke-width="1.8"/>
+        </svg>`,
+
+      seraphina: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <path d="M30 54 Q60 14 90 54 L94 96 L26 96 Z" fill="#701a75"/>
+          <circle cx="60" cy="54" r="21" fill="#fde2c4"/>
+          <path d="M38 44 Q60 22 82 44" fill="#a21caf"/>
+          <circle cx="60" cy="26" r="5" fill="#ffe184"/>
+          <circle cx="52" cy="54" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="54" r="2.6" fill="#0f172a"/>
+          <path d="M54 64 Q60 69 66 64" fill="none" stroke="#be185d" stroke-width="2" stroke-linecap="round"/>
+          <path d="M22 115 Q60 82 98 115 Z" fill="#86198f" stroke="#ffe184" stroke-width="2.5"/>
+          <!-- Manual de Operações -->
+          <rect x="82" y="66" width="22" height="26" rx="3" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+          <line x1="86" y1="74" x2="100" y2="74" stroke="#b45309" stroke-width="2"/>
+          <line x1="86" y1="81" x2="98" y2="81" stroke="#b45309" stroke-width="2"/>
+        </svg>`,
+
+      cedric: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <circle cx="60" cy="52" r="22" fill="#f1c29b"/>
+          <!-- Elmo de Cavaleiro -->
+          <path d="M36 48 Q60 14 84 48 L82 36 Q60 16 38 36 Z" fill="#94a3b8" stroke="#ffe184" stroke-width="2"/>
+          <circle cx="52" cy="52" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="52" r="2.6" fill="#0f172a"/>
+          <path d="M53 64 L67 64" stroke="#7c2d12" stroke-width="2.2" stroke-linecap="round"/>
+          <path d="M22 115 Q60 80 98 115 Z" fill="#334155" stroke="#34d399" stroke-width="2.5"/>
+          <!-- Checklist / Selo GCP -->
+          <circle cx="92" cy="76" r="13" fill="#065f46" stroke="#34d399" stroke-width="2.5"/>
+          <path d="M86 76 L90 80 L98 71" fill="none" stroke="#ffe184" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>`,
+
+      mirella: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <path d="M30 56 Q60 14 90 56 L92 98 L28 98 Z" fill="#064e3b"/>
+          <circle cx="60" cy="54" r="21" fill="#fde2c4"/>
+          <path d="M38 45 Q60 22 82 45" fill="#047857"/>
+          <circle cx="52" cy="54" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="54" r="2.6" fill="#0f172a"/>
+          <path d="M54 64 Q60 68 66 64" fill="none" stroke="#be185d" stroke-width="2" stroke-linecap="round"/>
+          <path d="M22 115 Q60 82 98 115 Z" fill="#065f46" stroke="#38bdf8" stroke-width="2.5"/>
+          <!-- Frasco Alquímico / Tubo de Ensaio -->
+          <path d="M88 60 L96 60 L96 72 L104 88 Q104 94 92 94 Q80 94 80 88 L88 72 Z" fill="rgba(56,189,248,0.45)" stroke="#ffe184" stroke-width="2"/>
+          <circle cx="90" cy="84" r="2.5" fill="#34d399"/>
+          <circle cx="95" cy="80" r="2" fill="#ffe184"/>
+        </svg>`,
+
+      thalen: `
+        <svg viewBox="0 0 120 120" width="100%" height="100%">
+          <circle cx="60" cy="52" r="22" fill="#fcd39d"/>
+          <path d="M34 46 Q60 14 86 46" fill="#1e293b"/>
+          <rect x="34" y="38" width="52" height="7" rx="3" fill="#e4b94c"/>
+          <circle cx="52" cy="52" r="2.6" fill="#0f172a"/>
+          <circle cx="68" cy="52" r="2.6" fill="#0f172a"/>
+          <path d="M54 64 Q60 67 66 64" fill="none" stroke="#78350f" stroke-width="2"/>
+          <path d="M22 115 Q60 80 98 115 Z" fill="#1e3a8a" stroke="#e4b94c" stroke-width="2.5"/>
+          <!-- Balança / Parcimônia -->
+          <line x1="92" y1="62" x2="92" y2="90" stroke="#ffe184" stroke-width="2.2"/>
+          <line x1="80" y1="70" x2="104" y2="70" stroke="#ffe184" stroke-width="2.2"/>
+          <circle cx="80" cy="78" r="4.5" fill="#38bdf8"/>
+          <circle cx="104" cy="78" r="4.5" fill="#34d399"/>
         </svg>`
     };
 
     /* =======================================================================
-       2. DADOS DOS REINOS, 5 VIAJANTES (FALAS + FIXAÇÃO) E 15 QUESTÕES DO CHEFE
+       2. DADOS DOS REINOS, FASES (CAP. 16 E CAP. 17) E QUESTÕES
        ======================================================================= */
     const REALMS = [
       {
@@ -1845,7 +1950,14 @@
         unlocked: true,
         desc: 'Domine tabelas relacionais, dicionário de dados, captura eletrônica (eCRF), consultas SQL, limpeza de erros e confidencialidade.'
       },
-      { id: 2, title: 'Reino do Capítulo 17', subtitle: 'Em breve', icon: '🗝️', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
+      {
+        id: 2,
+        title: 'Reino do Capítulo 17: A Forja da Qualidade',
+        subtitle: 'Implementando o Estudo e Controlando a Qualidade (Grady & Hulley)',
+        icon: '⚒️',
+        unlocked: true,
+        desc: 'Domine recursos, equipe, financiamento, manual de operações, pré-testes, revisões (RUTH), Boas Práticas Clínicas (GCP), CQ laboratorial e estudos multicêntricos.'
+      },
       { id: 3, title: 'Reino do Capítulo 18', subtitle: 'Em breve', icon: '🧭', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
       { id: 4, title: 'Reino do Capítulo 19', subtitle: 'Em breve', icon: '⚗️', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
       { id: 5, title: 'Reino do Capítulo 20', subtitle: 'Em breve', icon: '🛡️', unlocked: false, desc: 'Território selado aguardando o próximo capítulo de TCOIII.' },
@@ -2305,23 +2417,562 @@
     ];
 
     /* =======================================================================
-       3. ESTADO DO JOGO E SALVAMENTO NO localStorage
+       FASE 2: CAPÍTULO 17 — 5 VIAJANTES + 15 QUESTÕES DE VEXAR
+       ======================================================================= */
+    const TRAVELERS_CAP17 = [
+      {
+        id: 0,
+        shortName: 'Aldric',
+        name: 'Mestre Aldric, o Arquiteto da Implementação',
+        subtitle: 'Recursos, Área Física, Equipe, Financiamento e CEP',
+        themeKey: 'recursos',
+        icon: '🏛️',
+        svgKey: 'aldric',
+        speeches: [
+          'Bem-vindo à Forja da Qualidade! O Capítulo 17 foca o **lado direito do modelo de pesquisa clínica**: a **implementação** do estudo, que protege a **validade interna**. Mesmo um projeto brilhante no papel fracassa se faltar área física adequada (fácil acesso, estacionamento, privacidade, lavagem das mãos e, em estudos com risco, equipe/equipamento de **reanimação cardiorrespiratória**). **Unidades de pesquisa clínica** acadêmicas oferecem salas e pessoal experiente, mas exigem inscrição prévia e reembolso.',
+          'Na equipe de pesquisa, o **Investigador Principal (IP)** é o responsável final por delineamento, financiamento, equipe, qualidade e relato. O **diretor de projeto/coordenador** gerencia a rotina diária, enquanto o **coordenador de controle de qualidade** assegura adesão aos **POPs** e supervisiona auditorias. Reuniões regulares com **pauta prévia** mantêm a equipe engajada e treinada em serviço.',
+          'O período antes de arrolar o 1º participante é o **study start-up**. No financiamento, verbas públicas (**NIH**) têm regras mais restritivas (não aumentam o teto e exigem aprovação para transferir rubricas), enquanto a **indústria** usa **contratos legais** elaborados com advogados da universidade — mas o **IP** precisa participar para definir escopo e metas. O **administrador pré-financiamento** ajuda no orçamento inicial; o **pós-financiamento** projeta gastos e viabiliza **extensões sem custos** com sobras.',
+          'Por fim, nunca esqueça: a aprovação pelo **Comitê de Ética em Pesquisa (CEP)** do protocolo, do consentimento informado e dos materiais de recrutamento é obrigatória **antes** de recrutar o primeiro participante!'
+        ],
+        summaryPoints: [
+          'Lado direito do modelo de pesquisa = implementação (protege a validade interna).',
+          'Área física: acessível, acolhedora, privacidade/lavagem das mãos, acesso a reanimação quando necessário; unidades de pesquisa clínica exigem inscrição e reembolso.',
+          'Equipe: IP (responsável final), diretor de projeto (rotina diária), coordenador de CQ (POPs/auditorias); reuniões regulares com pauta distribuída com antecedência.',
+          'Study start-up: financiamento público (NIH mais restritivo) vs indústria (contratos com advogados + IP no escopo/metas); administrador pré vs pós-financiamento (extensões sem custos); aprovação do CEP antes do recrutamento.'
+        ],
+        quiz: [
+          {
+            question: 'No modelo de pesquisa clínica da Figura 17.1, qual dimensão é diretamente protegida pela implementação cuidadosa do estudo?',
+            options: [
+              'A validade interna, que liga os achados do estudo realizado à verdade no estudo.',
+              'A validade externa, que liga a população-alvo da questão aos fenômenos no universo.',
+              'A generalização amostral, que substitui a necessidade de critérios de elegibilidade.',
+              'O delineamento conceitual, que dispensa o controle de qualidade durante as aferições.'
+            ],
+            correct: 0,
+            explanation: 'O lado direito do modelo trata da implementação (do plano de estudo ao estudo realizado e seus achados), protegendo a validade interna contra erros operacionais.'
+          },
+          {
+            question: 'Ao comparar financiamento público (como o NIH) e contratos com a indústria farmacêutica na implementação de um estudo, assinale a afirmação correta:',
+            options: [
+              'Verbas públicas são mais restritivas para remanejar rubricas, enquanto contratos industriais exigem advogados e o IP no escopo.',
+              'Verbas públicas permitem elevar o teto orçamentário livremente, enquanto contratos industriais dispensam revisão jurídica institucional.',
+              'O administrador pré-financiamento gere extensões sem custos, enquanto o pós-financiamento redige o protocolo inicial.',
+              'Em contratos com a indústria, os advogados definem sozinhos o escopo científico e as metas de recrutamento clínico.'
+            ],
+            correct: 0,
+            explanation: 'Verbas do NIH têm regras mais restritivas (inclusive para transferir rubricas), enquanto contratos com a indústria exigem advogados (propriedade intelectual/publicação) + participação do IP no escopo e metas.'
+          }
+        ]
+      },
+      {
+        id: 1,
+        shortName: 'Seraphina',
+        name: 'Sábia Seraphina, a Guardiã do Protocolo',
+        subtitle: 'Manual de Operações, Pré-testes, Revisões (RUTH) e Encerramento',
+        themeKey: 'protocolo',
+        icon: '📘',
+        svgKey: 'seraphina',
+        speeches: [
+          'Saudações! O **Manual de Operações** expande o protocolo com definições operacionais explícitas de recrutamento, visitas, randomização, cegamento, aferições e CQ — reduzindo variação aleatória mesmo em estudos de um único investigador. E atenção: **crie e teste o banco de dados antes do 1º participante**, evitando o erro de começar em papel ou Excel e descobrir tarde demais erros incorrigíveis.',
+          'Antes de iniciar, faça **pré-testes** (ex.: digitar dados em branco, fora da faixa ou ilógicos para testar alertas), **estudos-piloto** (em estudos grandes, pode valer gastar **até 10% do orçamento**) e um **ensaio geral** completo, no qual o **próprio IP faz o papel de sujeito** para vivenciar problemas logísticos.',
+          'Após o início da coleta, a regra é **fazer o mínimo possível de alterações**. **Pequenas revisões** (como detalhar uma definição operacional) exigem memorandos e **novo número de versão** nos documentos. Já **revisões substanciais** exigem aprovação de **CEP, FDA, DSMB e financiador** — como no ensaio **RUTH** (raloxifeno), que ampliou o desfecho primário para incluir **outras síndromes coronarianas agudas** e adicionou **câncer de mama** como 2º desfecho após os resultados do estudo **MORE**.',
+          'Por fim, planeje o **encerramento (closeout)**: agradeça aos participantes, entregue **resultados laboratoriais clinicamente relevantes** (a eles e seus médicos), informe a intervenção em ensaios cegos **após todos concluírem e as análises/publicação terminarem**, e envie o manuscrito + **press release em linguagem leiga**.'
+        ],
+        summaryPoints: [
+          'Manual de operações expande o protocolo e reduz variação aleatória; banco de dados deve ser construído e testado antes do 1º participante.',
+          'Pré-testes (testar erros intencionais), estudos-piloto (até 10% do orçamento em estudos grandes) e ensaio geral (IP atua como sujeito).',
+          'Revisões pós-início: minimizar; pequenas = novo número de versão/memorandos; substanciais = exemplo do RUTH (ampliou desfecho para SCA e adicionou câncer de mama após MORE), exigindo CEP/FDA/DSMB.',
+          'Encerramento (closeout): agradecer, entregar resultados clínicos, descegar após término/análises, enviar manuscrito + resumo em linguagem leiga.'
+        ],
+        quiz: [
+          {
+            question: 'No ensaio clínico RUTH, por que a ampliação do desfecho primário para incluir síndromes coronarianas agudas e a adição de câncer de mama exigiram aprovação de CEP e FDA?',
+            options: [
+              'Porque constituíram revisões substanciais do protocolo após o início da coleta, alterando desfechos principais.',
+              'Porque qualquer ajuste redacional no manual de operações exige nova submissão simultânea ao CEP e ao FDA.',
+              'Porque o estudo havia falhado na etapa de pré-teste com dados fictícios antes do arrolamento inicial.',
+              'Porque o estudo MORE já havia encerrado o cegamento de todos os participantes antes da análise interina.'
+            ],
+            correct: 0,
+            explanation: 'Mudanças substanciais (como alterar critérios de inclusão, intervenção ou desfecho primário) exigem aprovações formais (CEP em cada centro, FDA, DSMB e financiador) e revisão dos documentos.'
+          },
+          {
+            question: 'Em um ensaio clínico cego, qual conduta é recomendada durante o planejamento do encerramento (closeout)?',
+            options: [
+              'Revelar a intervenção recebida apenas após todos concluírem o estudo e as análises principais estarem prontas.',
+              'Informar imediatamente o grupo de alocação na última visita individual, antes de encerrar o seguimento geral.',
+              'Restringir a entrega de resultados laboratoriais relevantes apenas aos participantes do braço de intervenção ativa.',
+              'Enviar exclusivamente o artigo científico técnico aos participantes, evitando materiais em linguagem leiga.'
+            ],
+            correct: 0,
+            explanation: 'Em ensaios cegos, o descegamento aos participantes ocorre após todos completarem a participação e as análises principais (ou publicação) estarem concluídas, acompanhado de agradecimento, resultados clínicos e resumo em linguagem leiga.'
+          }
+        ]
+      },
+      {
+        id: 2,
+        shortName: 'Cedric',
+        name: 'Sir Cedric, o Paladino das Boas Práticas',
+        subtitle: 'GCP/BPC, POPs, Calibração, Revisão de Desempenho e Fármacos',
+        themeKey: 'gcp_clinico',
+        icon: '⚔️',
+        svgKey: 'cedric',
+        speeches: [
+          'Honra e rigor, aprendiz! As **Boas Práticas Clínicas (GCP)** — detalhadas no **FDA 21 CFR** e na **ICH** — formam o padrão internacional de qualidade ética e científica que garante os direitos, a segurança e o bem-estar dos sujeitos. A melhor forma de implementá-las é por meio de **Procedimentos Operacionais-Padrão (POPs)** para cada atividade do estudo.',
+          'No controle de qualidade de **procedimentos clínicos**, calibramos equipamentos profissionalmente antes e durante o estudo. Toda a equipe recebe **treinamento padronizado, certificação inicial e recertificações agendadas** — tudo devidamente documentado (por exemplo, aferir estatura em voluntários fora do estudo com altura conhecida).',
+          'Supervisores realizam **revisões de desempenho**: com permissão do participante, observam **em silêncio** visitas ou ligações usando um **checklist padronizado** prévio e dão feedback **positivo e não pejorativo**. A **revisão por pares** também fortalece o espírito de equipe, pois o observador aprende tanto quanto o observado!',
+          'Tabulamos **relatórios periódicos**: comparar **médias e desvios-padrão** entre técnicos ao longo dos meses flagra mudanças na técnica (ex.: pressão arterial). Já em **intervenções medicamentosas cegas**, controlamos rigorosamente rotulagem, armazenamento, dispensação, devolução/descarte e podemos até **testar a composição das medicações mascaradas**.'
+        ],
+        summaryPoints: [
+          'GCP/BPC (FDA 21 CFR, ICH): padrão internacional de qualidade ética e científica, implementado via POPs.',
+          'Calibração periódica de equipamentos + treinamento, certificação e recertificações documentadas.',
+          'Revisão de desempenho: observação silenciosa (com permissão do sujeito) usando checklist padronizado e feedback não pejorativo; revisão por pares engaja e ensina.',
+          'Relatórios periódicos (médias/DP por técnico) detectam deriva de técnica; fármacos cegos exigem controle de rotulagem, dispensação, devolução e teste eventual da composição.'
+        ],
+        quiz: [
+          {
+            question: 'Durante uma revisão periódica de desempenho em visitas clínicas, qual procedimento está de acordo com as diretrizes do Capítulo 17?',
+            options: [
+              'Observar em silêncio com permissão do participante, usar checklist prévio e discutir achados de modo não pejorativo.',
+              'Interromper a entrevista diante do participante sempre que o assistente se desviar do manual de operações.',
+              'Aplicar um checklist surpresa sem aviso prévio à equipe para evitar que o técnico altere sua rotina habitual.',
+              'Restringir as observações exclusivamente ao investigador principal, evitando a participação de pares da equipe.'
+            ],
+            correct: 0,
+            explanation: 'O supervisor (ou par) obtém permissão do participante, observa em silêncio com um checklist padronizado fornecido com antecedência e discute os pontos depois de forma positiva e não pejorativa.'
+          },
+          {
+            question: 'Em relatórios periódicos de controle de qualidade clínico, o que pode indicar uma mudança gradual no desvio-padrão das leituras de pressão arterial ao longo de alguns meses?',
+            options: [
+              'Alteração progressiva na técnica de medição empregada pela equipe ou por um técnico específico.',
+              'Melhora automática na adesão dos participantes às visitas de seguimento do estudo clínico.',
+              'Redução esperada da variabilidade biológica decorrente da certificação inicial da equipe.',
+              'Falha exclusiva na rotulagem eletrônica dos formulários durante a exportação para análise.'
+            ],
+            correct: 0,
+            explanation: 'Diferenças entre médias de técnicos ou mudança gradual no desvio-padrão ao longo de meses em relatórios periódicos sinalizam deriva ou diferenças na técnica de medição.'
+          }
+        ]
+      },
+      {
+        id: 3,
+        shortName: 'Mirella',
+        name: 'Alquimista Mirella, a Mestra do Laboratório',
+        subtitle: 'Rotulagem, Cegamento, Duplicatas, Pools-Padrão e Consenso',
+        themeKey: 'laboratorio',
+        icon: '🧪',
+        svgKey: 'mirella',
+        speeches: [
+          'Entre no meu laboratório com cuidado! Um erro de **rotulagem** de sangue quase nunca pode ser descoberto depois — a única solução é **prevenir**. Use rótulos impressos ou **código de barras**; ao transferir soro entre tubos, rotule antes o tubo novo, coloque ambos **lado a lado** e leia um em **voz alta** conferindo o outro.',
+          'Sempre aplique **cegamento** no laboratório, rotulando amostras sem revelar o grupo do sujeito — isso reduz vieses **mesmo em exames automatizados** como a glicemia! Porém, mantenha fluxo claro para **relatar resultados anormais** a um profissional qualificado e prever **descegamento emergencial** se necessário.',
+          'Para monitorar a qualidade analítica, temos 3 armas clássicas: **duplicatas mascaradas** (2ª amostra de um subconjunto aleatório com ID fictício) estimam a **precisão**; **pools-padrão** congelados enviados periodicamente com IDs fictícios estimam **acurácia e precisão**; e **medidas de consenso** (2 leitores independentes cegados + consenso ou **3º leitor**) servem para exames de variabilidade inerente como **Papanicolau e mamografia**.',
+          'Ao contratar **laboratórios comerciais**, arquive cópias de seu **licenciamento e certificação** no centro de estudo e exija dados de reprodutibilidade (**coeficientes de variação**), prazos, protocolo de amostras codificadas e notificação de resultados anormais.'
+        ],
+        summaryPoints: [
+          'Rotulagem: prevenir com rótulos impressos, código de barras e conferência lado a lado em voz alta na transferência de soro.',
+          'Cegamento laboratorial reduz viés mesmo em exames automatizados; exige protocolo para resultados anormais e descegamento emergencial.',
+          'Duplicatas mascaradas = precisão; Pools-padrão = acurácia e precisão; Medidas de consenso (2 leitores cegados + 3º leitor) = Papanicolau/mamografia.',
+          'Laboratórios comerciais: arquivar licenciamento/certificação, exigir coeficientes de variação, prazos e notificação de anormais.'
+        ],
+        quiz: [
+          {
+            question: 'No controle de qualidade de um laboratório central, qual é a diferença metodológica entre enviar duplicatas mascaradas e enviar alíquotas de um pool-padrão congelado?',
+            options: [
+              'Duplicatas mascaradas estimam a precisão das técnicas, enquanto pools-padrão permitem estimar acurácia e precisão.',
+              'Duplicatas mascaradas avaliam a acurácia contra um padrão-ouro, enquanto pools-padrão medem apenas o viés do observador.',
+              'Duplicatas mascaradas são usadas apenas em exames de imagem, enquanto pools-padrão substituem o cegamento técnico.',
+              'Duplicatas mascaradas exigem consenso de três leitores, enquanto pools-padrão dispensam números de identificação fictícios.'
+            ],
+            correct: 0,
+            explanation: 'Duplicatas mascaradas (duas amostras do mesmo sujeito) estimam precisão (reprodutibilidade); pools-padrão com valor de referência conhecido permitem estimar tanto acurácia quanto precisão.'
+          },
+          {
+            question: 'Por que o cegamento de técnicos de laboratório continua recomendado mesmo em dosagens automatizadas, como a glicemia?',
+            options: [
+              'Porque reduz chances de vieses e fortalece a seção de métodos, desde que haja fluxo para resultados anormais.',
+              'Porque elimina a necessidade de rotular tubos com código de barras ou de conferir a transferência de soro.',
+              'Porque impede que o laboratório comercial precise apresentar coeficientes de variação ou certificações no contrato.',
+              'Porque torna desnecessário prever mecanismos de descegamento emergencial em ensaios clínicos de fármacos.'
+            ],
+            correct: 0,
+            explanation: 'Mesmo em procedimentos automatizados, o cegamento reduz vieses e torna os métodos mais convincentes, exigindo em paralelo um protocolo claro para resultados anormais e descegamento emergencial.'
+          }
+        ]
+      },
+      {
+        id: 4,
+        shortName: 'Thalen',
+        name: 'Cronista Thalen, o Juiz da Parcimônia',
+        subtitle: 'CQ de Dados, Fraudes, Estudos Multicêntricos e Parcimônia',
+        themeKey: 'dados_multicentrico',
+        icon: '⚖️',
+        svgKey: 'thalen',
+        speeches: [
+          'Última parada antes de Vexar! No CQ de dados, **dados faltantes** são perigosos: mesmo poucas perdas podem gerar **viés de não resposta** (ex.: perder 10% quando a mortalidade tardia é 5%). Técnicas de **imputação** ajudam, mas **não garantem ausência de viés** se as perdas forem grandes. A solução real é **prevenir**, checando a completude **enquanto o participante ainda está na clínica**!',
+          'Para **dados inacurados**, além de treinamento e alertas eletrônicos, toda correção deve ser rastreável: no **papel**, **risque sem apagar**, assine e date; no **eletrônico**, mantenha **audit trail**. Contra **dados fraudulentos**, escolha bem a equipe, cultive cultura ética explícita e verifique periodicamente a **fonte primária**.',
+          'Em **estudos colaborativos multicêntricos**, um **centro de coordenação** centraliza comunicação, manual, treinamento e análise, junto a um **comitê diretivo** e **subcomitês** (controle de qualidade, recrutamento, publicações). O **Apêndice 17B** detalha tabulações periódicas e **visitas aos centros** (clínicos e de dados), enquanto mudanças operacionais são postadas online para todos.',
+          'Guarde a regra de ouro final: **parcimônia**! Coletar variáveis em excesso eleva custos, cansa os participantes, complica o banco e **deteriora o controle de qualidade das medições realmente importantes**. Agora, vá derrotar Vexar!'
+        ],
+        summaryPoints: [
+          'Dados faltantes geram viés de não resposta; imputação não garante isenção de viés se perdas forem grandes; prevenir checando completude enquanto o sujeito está na clínica.',
+          'Correção de dados: no papel riscar sem apagar, assinar e datar; no eletrônico usar audit trail. Fraudes: equipe confiável, cultura ética e checagem da fonte primária.',
+          'Multicêntricos: centro de coordenação, comitê diretivo, subcomitês (CQ, publicações), entrada distribuída, visitas aos centros (Apêndice 17B) e atualizações online.',
+          'Parcimônia: coletar apenas variáveis necessárias para não cansar sujeitos nem deteriorar o CQ das medições principais.'
+        ],
+        quiz: [
+          {
+            question: 'Sobre o manejo de dados faltantes em estudos longitudinais, qual afirmação reflete corretamente a orientação do Capítulo 17?',
+            options: [
+              'A imputação estatística não garante ausência de viés em perdas grandes, sendo essencial prevenir omissões ainda na clínica.',
+              'A imputação pela média dos demais participantes elimina completamente o viés de não resposta em análises multivariadas.',
+              'Perdas de seguimento abaixo de 10% raramente distorcem desfechos raros, dispensando conferência imediata dos formulários.',
+              'Erros de omissão em medições clínicas devem ser corrigidos apenas após o encerramento, por meio de consultas SQL.'
+            ],
+            correct: 0,
+            explanation: 'Imputação ajuda na análise multivariada, mas não garante conclusões livres de viés se houver muitas perdas. A única solução adequada é prevenir, revisando formulários enquanto o sujeito ainda está na clínica.'
+          },
+          {
+            question: 'Qual é a principal consequência negativa de coletar variáveis em excesso na linha de base e nas visitas de seguimento?',
+            options: [
+              'Cansar os participantes, aumentar custos e deteriorar o controle de qualidade das medições realmente importantes.',
+              'Impedir a criação de redundâncias intencionais que aumentam a validade das variáveis preditoras principais.',
+              'Inviabilizar a aprovação do protocolo pelo Comitê de Ética em Pesquisa antes do início do recrutamento.',
+              'Obrigar o estudo a abandonar o manual de operações e migrar para um delineamento colaborativo multicêntrico.'
+            ],
+            correct: 0,
+            explanation: 'Parcimônia é a regra: coletar dados demais consome tempo e dinheiro, entedia/cansa os sujeitos, infla o banco e deteriora o controle de qualidade das variáveis essenciais.'
+          }
+        ]
+      }
+    ];
+
+    /* 15 Questões do Simulado contra Vexar (0..9 = 1ª batalha | 10..14 = 5 inéditas para revanche) */
+    const BOSS_QUESTIONS_CAP17 = [
+      {
+        id: 0,
+        themeKey: 'recursos',
+        topic: 'Equipe e Liderança',
+        question: 'Na divisão de funções de uma equipe de pesquisa clínica (Tabela 17.1), qual responsabilidade pertence especificamente ao coordenador de controle de qualidade?',
+        options: [
+          'Assegurar que a equipe siga os POPs, observar procedimentos e supervisionar auditorias de órgãos externos.',
+          'Gerenciar a rotina diária de todas as atividades clínicas, coordenando agendas e o trabalho administrativo.',
+          'Assumir a responsabilidade final pelo delineamento, financiamento, condução e relato dos achados do estudo.',
+          'Estimar o tamanho amostral, elaborar o plano estatístico e interpretar os resultados das análises interinas.'
+        ],
+        correct: 0,
+        explanation: 'O coordenador de controle de qualidade assegura adesão aos POPs, supervisiona o CQ e atua como contato/supervisor em auditorias externas (CEP, FDA/ANVISA, financiador).'
+      },
+      {
+        id: 1,
+        themeKey: 'recursos',
+        topic: 'Área Física e Unidades de Pesquisa',
+        question: 'Um pesquisador planeja utilizar uma unidade de pesquisa clínica acadêmica para exames especializados como densidade óssea e clamp. Que limitação prática deve antecipar?',
+        options: [
+          'Necessidade de procedimentos adicionais de inscrição, avaliação de protocolo e reembolso pelos serviços prestados.',
+          'Ausência de pessoal técnico experiente, exigindo que o investigador forneça toda a equipe e os equipamentos.',
+          'Proibição de realizar exames físicos ou coletar amostras biológicas de participantes que não estejam internados.',
+          'Obrigatoriedade de transferir a titularidade do financiamento e os direitos de publicação para a unidade clínica.'
+        ],
+        correct: 0,
+        explanation: 'Unidades de pesquisa clínica oferecem salas equipadas e pessoal experiente, mas geralmente exigem inscrição adicional, avaliação de protocolo e reembolso pelos serviços.'
+      },
+      {
+        id: 2,
+        themeKey: 'protocolo',
+        topic: 'Pré-testes, Piloto e Ensaio Geral',
+        question: 'Durante a finalização do protocolo, qual prática exemplifica corretamente um ensaio geral em grande escala antes do início da coleta?',
+        options: [
+          'O próprio investigador atuar como sujeito para vivenciar as visitas e detectar falhas práticas e logísticas.',
+          'Aplicar o questionário final em metade da amostra pretendida para ajustar o cálculo de poder estatístico.',
+          'Substituir o pré-teste do banco de dados por uma revisão teórica do manual de operações em reunião de equipe.',
+          'Iniciar o recrutamento real em um único centro e corrigir o fluxo de visitas conforme surgirem reclamações.'
+        ],
+        correct: 0,
+        explanation: 'No ensaio geral, testa-se o conjunto final de instrumentos e procedimentos; o próprio investigador pode fazer o papel do sujeito para vivenciar o estudo e testar a equipe.'
+      },
+      {
+        id: 3,
+        themeKey: 'protocolo',
+        topic: 'Revisões Pós-Início',
+        question: 'Após o início do recrutamento, a equipe precisa esclarecer uma definição operacional sem alterar o protocolo aprovado pelo CEP. Como proceder corretamente?',
+        options: [
+          'Decidir com os coinvestigadores, divulgar por memorandos, atualizar o manual com novo número de versão e garantir uso da versão atual.',
+          'Comunicar a mudança verbalmente nas reuniões locais sem alterar o manual, evitando confusão sobre versões anteriores.',
+          'Suspender imediatamente o seguimento de todos os participantes até obter nova aprovação formal do FDA e do financiador.',
+          'Permitir que cada centro adote sua própria interpretação clínica até o encerramento do estudo para manter a autonomia.'
+        ],
+        correct: 0,
+        explanation: 'Pequenas revisões são acordadas com coinvestigadores, divulgadas por memorandos e registradas com novo número de versão no manual/documentos, garantindo aplicação uniforme.'
+      },
+      {
+        id: 4,
+        themeKey: 'gcp_clinico',
+        topic: 'Boas Práticas Clínicas (GCP)',
+        question: 'Qual é a forma mais eficaz recomendada no Capítulo 17 para implementar os princípios das Boas Práticas Clínicas (GCP) no cotidiano de um estudo?',
+        options: [
+          'Estabelecer procedimentos operacionais-padrão (POPs) abrangendo inclusive treinamento, certificação, banco de dados e backups.',
+          'Limitar o controle de qualidade ao protocolo inicial, já que ele cobre todas as rotinas de certificação e confidencialidade.',
+          'Delegar a conformidade ética exclusivamente ao Comitê de Ética em Pesquisa, dispensando auditorias internas.',
+          'Aplicar as diretrizes da ICH somente em ensaios financiados pela indústria farmacêutica voltados ao registro no FDA.'
+        ],
+        correct: 0,
+        explanation: 'A melhor forma de implementar as GCPs é via POPs cobrindo todas as atividades, inclusive pontos frequentemente ausentes do protocolo (treinamento/certificação, testagem do banco, backups).'
+      },
+      {
+        id: 5,
+        themeKey: 'gcp_clinico',
+        topic: 'Intervenções Medicamentosas Cegas',
+        question: 'Em um ensaio clínico cego com fármaco ativo e placebo, qual medida específica integra o controle de qualidade da intervenção medicamentosa?',
+        options: [
+          'Controlar rotulagem, armazenamento, dispensação e retorno, podendo testar a composição mascarada para confirmar o fármaco.',
+          'Permitir que o assistente clínico conheça a alocação durante a dispensação para conferir a dose antes de entregar ao sujeito.',
+          'Descartar imediatamente os frascos não utilizados sem registro de retorno para evitar contaminação no local de armazenamento.',
+          'Substituir o planejamento com a farmácia de pesquisa por orientações verbais padronizadas no dia da visita de linha de base.'
+        ],
+        correct: 0,
+        explanation: 'Ensaios com medicamentos cegos exigem controle rigoroso de rotulagem, entrega, armazenamento, dispensação, retorno/descarte e eventual teste da composição mascarada.'
+      },
+      {
+        id: 6,
+        themeKey: 'laboratorio',
+        topic: 'Prevenção de Erros de Rotulagem',
+        question: 'Ao transferir soro de um tubo primário para um novo tubo no laboratório do estudo, qual conduta reduz diretamente o risco de troca de amostras?',
+        options: [
+          'Rotular previamente o tubo novo, manter os dois tubos lado a lado e ler um em voz alta enquanto confere o outro.',
+          'Transferir todo o lote de soros primeiro e transcrever manualmente os números de identificação ao final do turno.',
+          'Anotar apenas as iniciais do participante à caneta na tampa do tubo novo para agilizar o processo de centrifugação.',
+          'Conferir a identificação das amostras somente após o resultado automatizado ser importado para o banco de dados.'
+        ],
+        correct: 0,
+        explanation: 'Erros de rotulagem são quase impossíveis de descobrir depois; recomenda-se rotular antes o tubo novo, mantê-los lado a lado e ler um em voz alta verificando o outro (além de rótulos impressos/código de barras).'
+      },
+      {
+        id: 7,
+        themeKey: 'laboratorio',
+        topic: 'Medidas de Consenso',
+        question: 'Para exames com variabilidade inerente de interpretação, como Papanicolau ou mamografia, qual estratégia laboratorial de controle de qualidade é recomendada?',
+        options: [
+          'Empregar dois leitores independentes cegados, resolvendo discordâncias por discussão/consenso ou por um terceiro leitor.',
+          'Substituir a leitura humana por um pool-padrão congelado enviado periodicamente com número de identificação fictício.',
+          'Solicitar que um único leitor sênior revise todas as imagens sabendo o grupo de alocação para aumentar a sensibilidade.',
+          'Descartar da análise final todos os exames em que houver qualquer discordância entre os dois primeiros leitores.'
+        ],
+        correct: 0,
+        explanation: 'Em medições com variabilidade inerente (Papanicolau, mamografia), usam-se dois leitores independentes cegados; divergências são resolvidas por consenso ou por um terceiro leitor.'
+      },
+      {
+        id: 8,
+        themeKey: 'dados_multicentrico',
+        topic: 'Correção de Dados e Fraudes',
+        question: 'Ao identificar um erro de registro em um formulário original em papel durante a coleta de dados, qual é o procedimento padronizado correto?',
+        options: [
+          'Riscar a informação original sem apagá-la, registrar o valor corrigido, assinar e colocar a data da modificação.',
+          'Apagar completamente o valor incorreto com corretivo líquido para manter a legibilidade antes da digitação.',
+          'Substituir a folha inteira por um novo formulário limpo e descartar o documento original para evitar duplicidade.',
+          'Corrigir o dado diretamente no arquivo eletrônico sem alterar o papel, preservando o formulário como foi preenchido.'
+        ],
+        correct: 0,
+        explanation: 'No papel, a correção deve riscar a informação original (sem apagar), assinar e datar — equivalente ao audit trail eletrônico que justifica mudanças e previne fraudes.'
+      },
+      {
+        id: 9,
+        themeKey: 'dados_multicentrico',
+        topic: 'Estudos Colaborativos Multicêntricos',
+        question: 'Em um estudo colaborativo multicêntrico distribuído em várias cidades, qual é o papel do centro de coordenação?',
+        options: [
+          'Estabelecer comunicação, coordenar manual e formulários, treinar pessoal de medição e supervisionar dados e análises.',
+          'Realizar sozinho todo o recrutamento de participantes e enviá-los aos centros locais apenas para as visitas finais.',
+          'Substituir o comitê diretivo e os subcomitês, concentrando todas as decisões de publicação em um único investigador.',
+          'Dispensar visitas presenciais aos centros clínicos graças ao uso exclusivo de entrada distribuída de dados pela internet.'
+        ],
+        correct: 0,
+        explanation: 'O centro de coordenação articula comunicação, manual de operações, formulários, CQ, treinamento das equipes e supervisão do gerenciamento, análise e publicação dos dados.'
+      },
+      // --- 5 Questões Inéditas da Reserva de Vexar (para revanches) ---
+      {
+        id: 10,
+        themeKey: 'recursos',
+        topic: 'Study Start-up e Financiamento (Inédita)',
+        question: 'Por que sobrar parte da verba ao final de um estudo financiado por agência pública pode ser considerado um aspecto positivo?',
+        options: [
+          'Porque as agências frequentemente aprovam extensões sem custos para usar a sobra e concluir o escopo proposto.',
+          'Porque o investigador pode transferir livremente o saldo restante para financiar projetos pessoais sem autorização.',
+          'Porque comprova que o estudo dispensou o administrador pós-financiamento e economizou na etapa de pré-testes.',
+          'Porque permite aumentar automaticamente o teto orçamentário do próximo edital sem necessidade de nova submissão.'
+        ],
+        correct: 0,
+        explanation: 'Com o acompanhamento do administrador pós-financiamento, uma sobra de verba pode viabilizar extensões sem custos (no-cost extensions) aprovadas pela agência para completar o trabalho do escopo.'
+      },
+      {
+        id: 11,
+        themeKey: 'protocolo',
+        topic: 'Banco de Dados Antes da Coleta (Inédita)',
+        question: 'Qual é a maior vantagem de construir e testar o banco de dados antes de recrutar o primeiro participante, em vez de iniciar em papel ou planilhas simples?',
+        options: [
+          'Evitar descobrir tardiamente um grande volume de dados faltantes, fora da faixa ou ilógicos que não podem mais ser corrigidos.',
+          'Eliminar completamente a necessidade de elaborar um manual de operações ou de pré-testar os questionários do estudo.',
+          'Permitir que a equipe inicie o recrutamento antes mesmo da aprovação formal do Comitê de Ética em Pesquisa.',
+          'Dispensar o planejamento de tabulações simuladas, já que o software seleciona automaticamente as variáveis relevantes.'
+        ],
+        correct: 0,
+        explanation: 'Construir e testar o banco cedo permite definir valores aceitáveis e alertas desde o início, evitando descobrir tarde demais erros e omissões incorrigíveis.'
+      },
+      {
+        id: 12,
+        themeKey: 'gcp_clinico',
+        topic: 'Revisão por Pares (Inédita)',
+        question: 'Além de aumentar o senso coletivo de responsabilidade pelo controle de qualidade, qual vantagem prática o capítulo destaca na revisão de desempenho por pares?',
+        options: [
+          'O colega que atua como observador aprende tanto sobre a padronização dos procedimentos quanto quem é observado.',
+          'Elimina a necessidade de manter registros documentados de treinamento, certificação e recertificação no centro.',
+          'Dispensa a permissão prévia do participante do estudo, por se tratar de dois membros da mesma equipe técnica.',
+          'Substitui os relatórios periódicos de médias e variâncias usados para comparar medições entre diferentes técnicos.'
+        ],
+        correct: 0,
+        explanation: 'Usar pares como observadores cria espírito de grupo, faz todos se sentirem responsáveis pelo CQ e traz o benefício de o observador aprender tanto quanto o observado.'
+      },
+      {
+        id: 13,
+        themeKey: 'laboratorio',
+        topic: 'Laboratórios Comerciais (Inédita)',
+        question: 'Ao contratar um laboratório comercial para análises biológicas de um estudo clínico, que documentação e indicadores devem ser exigidos pelo centro de estudo?',
+        options: [
+          'Cópias de licenciamento/certificação, dados de reprodutibilidade (coeficientes de variação) e fluxo para amostras codificadas.',
+          'Apenas o menor orçamento por exame, já que laboratórios comerciais seguem automaticamente o manual do estudo.',
+          'Exclusivamente o compromisso de liberar resultados diretamente aos participantes sem passar pela equipe clínica.',
+          'A dispensa de notificação de resultados anormais para preservar o cegamento absoluto durante todo o seguimento.'
+        ],
+        correct: 0,
+        explanation: 'Laboratórios comerciais devem ter licenciamento e certificação arquivados no centro, fornecer reprodutibilidade (coeficientes de variação), cumprir prazos, lidar com amostras codificadas e notificar anormais.'
+      },
+      {
+        id: 14,
+        themeKey: 'dados_multicentrico',
+        topic: 'Visitas aos Centros — Apêndice 17B (Inédita)',
+        question: 'De acordo com o Apêndice 17B, qual atividade compõe uma visita de controle de qualidade ao centro clínico em estudos multicêntricos?',
+        options: [
+          'Comparar formulários escolhidos aleatoriamente com o banco eletrônico e verificar se manuais arquivados estão atualizados.',
+          'Substituir o investigador principal local por um membro do centro de coordenação durante toda a fase de recrutamento.',
+          'Revisar apenas os registros financeiros do departamento, sem inspecionar dependências ou observar procedimentos clínicos.',
+          'Evitar conversas com participantes ou pessoal de apoio para não interferir na rotina administrativa do centro clínico.'
+        ],
+        correct: 0,
+        explanation: 'O Apêndice 17B lista, entre os componentes da visita ao centro clínico: inspeção das dependências, comparação aleatória entre formulários e arquivo eletrônico, checagem de manuais atualizados, observação da equipe e conversas com participantes e pessoal de apoio.'
+      }
+    ];
+
+    /* Mapa unificado das Fases 1 e 2 */
+    const PHASES = {
+      1: {
+        id: 1,
+        mapTitle: 'Fase 1: Reino do Capítulo 16',
+        mapSubtitle: '<em>Gerenciando Dados</em> — Hulley et al., Delineando a Pesquisa Clínica (4ª ed.)',
+        hudShort: 'Reino do Cap. 16',
+        hudTag: 'Cap. 16',
+        travelers: TRAVELERS,
+        bossQuestions: BOSS_QUESTIONS,
+        boss: {
+          shortName: 'Malakor',
+          fullName: 'Malakor, o Devorador de Dados',
+          badge: 'Mini-Chefão • Capítulo 16',
+          svgKey: 'boss',
+          quote: '“Planilhas desnormalizadas e dados corrompidos alimentam meu poder! Enfrente meu simulado de <strong>10 questões</strong> e prove seu domínio sobre o Capítulo 16.”',
+          artifactLabel: 'Artefato Conquistado (1/6)',
+          artifactName: '📜 O Pergaminho da Normalização',
+          rewardDesc: '<strong>Artefato 1/6:</strong> O Pergaminho da Normalização + 200 XP.'
+        }
+      },
+      2: {
+        id: 2,
+        mapTitle: 'Fase 2: Reino do Capítulo 17 — A Forja da Qualidade',
+        mapSubtitle: '<em>Implementando o Estudo e Controlando a Qualidade</em> — Grady & Hulley (4ª ed.)',
+        hudShort: 'Reino do Cap. 17',
+        hudTag: 'Cap. 17',
+        travelers: TRAVELERS_CAP17,
+        bossQuestions: BOSS_QUESTIONS_CAP17,
+        boss: {
+          shortName: 'Vexar',
+          fullName: 'Vexar, o Lorde do Caos Operacional',
+          badge: 'Mini-Chefão • Capítulo 17',
+          svgKey: 'vexar',
+          quote: '“Protocolos improvisados, amostras trocadas e dados faltantes alimentam meu caos! Enfrente meu simulado de <strong>10 questões</strong> e prove seu domínio sobre o Capítulo 17.”',
+          artifactLabel: 'Artefato Conquistado (2/6)',
+          artifactName: '⚒️ O Selo das Boas Práticas (GCP)',
+          rewardDesc: '<strong>Artefato 2/6:</strong> O Selo das Boas Práticas (GCP) + 200 XP.'
+        }
+      }
+    };
+
+    /* =======================================================================
+       3. ESTADO DO JOGO E SALVAMENTO NO localStorage (FASE 1 + FASE 2)
        ======================================================================= */
     const STORAGE_KEY = 'tco3_rpg_anim_v2';
 
     const DEFAULT_STATE = {
       xp: 0,
-      completedTravelers: [], // [0..4]
-      quizAwarded: {},        // { "t0_q0": true }
+      completedTravelers: [],  // Fase 1 [0..4]
+      completedTravelers2: [], // Fase 2 [0..4]
+      quizAwarded: {},         // { "p1_t0_q0": true, "t0_q0": true }
       artifact1: false,
+      artifact2: false,
       bossAttempts: 0,
+      bossAttempts2: 0,
       lastFailedThemes: [],
+      lastFailedThemes2: [],
       avatarNode: 0,
+      avatarNode2: 0,
       soundOn: true
     };
 
     let state = loadState();
     let currentView = 'hub';
+    let activePhase = 1; // 1 = Cap. 16 | 2 = Cap. 17
+    let grimoireTab = 1;
+
+    function getPhaseData() {
+      return PHASES[activePhase] || PHASES[1];
+    }
+
+    function getCompletedTravelers(phaseId = activePhase) {
+      return phaseId === 2 ? state.completedTravelers2 : state.completedTravelers;
+    }
+
+    function hasArtifact(phaseId = activePhase) {
+      return phaseId === 2 ? state.artifact2 : state.artifact1;
+    }
+
+    function setArtifact(phaseId, val) {
+      if (phaseId === 2) state.artifact2 = val;
+      else state.artifact1 = val;
+    }
+
+    function getBossAttempts(phaseId = activePhase) {
+      return phaseId === 2 ? state.bossAttempts2 : state.bossAttempts;
+    }
+
+    function incBossAttempts(phaseId = activePhase) {
+      if (phaseId === 2) state.bossAttempts2++;
+      else state.bossAttempts++;
+    }
+
+    function getLastFailedThemes(phaseId = activePhase) {
+      return phaseId === 2 ? state.lastFailedThemes2 : state.lastFailedThemes;
+    }
+
+    function setLastFailedThemes(phaseId, arr) {
+      if (phaseId === 2) state.lastFailedThemes2 = arr;
+      else state.lastFailedThemes = arr;
+    }
+
+    function getAvatarNode(phaseId = activePhase) {
+      return phaseId === 2 ? state.avatarNode2 : state.avatarNode;
+    }
+
+    function setAvatarNode(phaseId, idx) {
+      if (phaseId === 2) state.avatarNode2 = idx;
+      else state.avatarNode = idx;
+    }
 
     // Estado do diálogo do viajante
     let activeTravelerIdx = 0;
@@ -2495,17 +3146,20 @@
       document.getElementById('hud-level').textContent = `Nível ${level} (${state.xp} XP)`;
       document.getElementById('hud-xp-fill').style.width = `${pct}%`;
 
-      const arts = state.artifact1 ? 1 : 0;
+      const arts = (state.artifact1 ? 1 : 0) + (state.artifact2 ? 1 : 0);
       document.getElementById('hud-artifacts').textContent = `Artefatos: ${arts}/6`;
       document.getElementById('citadel-art-count').textContent = arts;
-      document.getElementById('hud-grimoire-count').textContent = `${state.completedTravelers.length}/5`;
+
+      const totalGrimoire = state.completedTravelers.length + state.completedTravelers2.length;
+      document.getElementById('hud-grimoire-count').textContent = `${totalGrimoire}/10`;
       document.getElementById('btn-sound').textContent = state.soundOn ? '🔊' : '🔇';
 
+      const p = getPhaseData();
       const locLabels = {
         hub: 'Mapa dos Reinos',
-        map: 'Reino do Cap. 16',
-        traveler: `Cap. 16 • ${TRAVELERS[activeTravelerIdx]?.shortName || 'Viajante'}`,
-        boss: 'Cap. 16 • Arena de Malakor'
+        map: p.hudShort,
+        traveler: `${p.hudTag} • ${p.travelers[activeTravelerIdx]?.shortName || 'Viajante'}`,
+        boss: `${p.hudTag} • Arena de ${p.boss.shortName}`
       };
       document.getElementById('hud-location').textContent = locLabels[currentView] || 'Mapa dos Reinos';
     }
@@ -2553,8 +3207,11 @@
       grid.innerHTML = '';
 
       REALMS.forEach((r) => {
-        const isCap16 = r.id === 1;
-        const done = isCap16 && state.artifact1;
+        const isPlayablePhase = r.id === 1 || r.id === 2;
+        const done = isPlayablePhase && hasArtifact(r.id);
+        const travCount = isPlayablePhase ? getCompletedTravelers(r.id).length : 0;
+        const artLabel = r.id === 1 ? 'Pergaminho obtido!' : 'Selo GCP obtido!';
+
         const card = document.createElement('div');
         card.className = `rpg-panel realm-card ${r.unlocked ? 'playable' : 'locked'}`;
 
@@ -2564,10 +3221,10 @@
           ? '<span class="badge badge-gold">✨ Jogável</span>'
           : '<span class="badge badge-locked">🔒 Bloqueado</span>';
 
-        const meta = isCap16
+        const meta = isPlayablePhase
           ? `<div style="display:flex;justify-content:space-between;font-size:0.76rem;color:#94a3b8;padding-top:10px;border-top:1px solid rgba(228,185,76,0.18);">
-               <span>Viajantes: <strong style="color:var(--gold-bright);">${state.completedTravelers.length}/5</strong></span>
-               <span>${done ? 'Pergaminho obtido!' : 'Mini-Chefão: >70%'}</span>
+               <span>Viajantes: <strong style="color:var(--gold-bright);">${travCount}/5</strong></span>
+               <span>${done ? artLabel : 'Mini-Chefão: >70%'}</span>
              </div>`
           : '';
 
@@ -2593,6 +3250,7 @@
 
         if (r.unlocked) {
           card.addEventListener('click', () => {
+            activePhase = r.id;
             playSFX('step');
             navigateTo('map');
           });
@@ -2602,11 +3260,13 @@
     }
 
     /* =======================================================================
-       8. TELA MAPA INTERATIVO DA FASE 1 (SVG ANIMADO)
+       8. TELA MAPA INTERATIVO DA FASE ATUAL (SVG ANIMADO)
        ======================================================================= */
     function getNextNodeIdx() {
-      for (let i = 0; i < TRAVELERS.length; i++) {
-        if (!state.completedTravelers.includes(i)) return i;
+      const p = getPhaseData();
+      const comp = getCompletedTravelers();
+      for (let i = 0; i < p.travelers.length; i++) {
+        if (!comp.includes(i)) return i;
       }
       return 5; // Mini-chefão
     }
@@ -2625,29 +3285,37 @@
     }
 
     function renderMap() {
+      const p = getPhaseData();
+      const comp = getCompletedTravelers();
+      const artDone = hasArtifact();
       const nextIdx = getNextNodeIdx();
+
+      // Cabeçalho dinâmico da fase
+      document.getElementById('map-phase-title').textContent = p.mapTitle;
+      document.getElementById('map-phase-subtitle').innerHTML = p.mapSubtitle;
+      document.getElementById('btn-map-boss').textContent = `⚔️ Enfrentar ${p.boss.shortName} (Mini-Chefão)`;
 
       // Banner guia
       const badge = document.getElementById('map-progress-badge');
       const guide = document.getElementById('map-guide-text');
-      badge.textContent = state.artifact1 ? '🔮 Artefato Conquistado!' : `${state.completedTravelers.length}/5 Viajantes`;
-      badge.className = state.artifact1 ? 'badge badge-emerald' : 'badge badge-gold';
+      badge.textContent = artDone ? '🔮 Artefato Conquistado!' : `${comp.length}/5 Viajantes`;
+      badge.className = artDone ? 'badge badge-emerald' : 'badge badge-gold';
 
-      if (state.artifact1) {
-        guide.innerHTML = '<strong style="color:#34d399;">Reino Conquistado!</strong> Você obteve <em>O Pergaminho da Normalização</em>. Pode revisitar qualquer viajante ou enfrentar Malakor novamente.';
+      if (artDone) {
+        guide.innerHTML = `<strong style="color:#34d399;">Reino Conquistado!</strong> Você obteve <em>${p.boss.artifactName}</em>. Pode revisitar qualquer viajante ou enfrentar ${p.boss.shortName} novamente.`;
       } else if (nextIdx === 5) {
-        guide.innerHTML = '<strong style="color:var(--gold-bright);">Todos os 5 viajantes concluídos!</strong> Caminhe até o Castelo para enfrentar <strong>Malakor, o Devorador de Dados</strong>!';
+        guide.innerHTML = `<strong style="color:var(--gold-bright);">Todos os 5 viajantes concluídos!</strong> Caminhe até o Castelo para enfrentar <strong>${p.boss.fullName}</strong>!`;
       } else {
-        guide.innerHTML = `<strong>Próxima Parada:</strong> Clique em <strong style="color:var(--gold-bright);">${TRAVELERS[nextIdx].name}</strong> para caminhar pela trilha e iniciar o diálogo.`;
+        guide.innerHTML = `<strong>Próxima Parada:</strong> Clique em <strong style="color:var(--gold-bright);">${p.travelers[nextIdx].name}</strong> para caminhar pela trilha e iniciar o diálogo.`;
       }
 
       // Trilha SVG completa (base) e iluminada (até o último nó alcançável)
       document.getElementById('svg-trail-base').setAttribute('d', buildCurvePath(MAP_COORDS));
-      const litEnd = state.artifact1 ? 6 : Math.max(2, nextIdx + 1);
+      const litEnd = artDone ? 6 : Math.max(2, nextIdx + 1);
       document.getElementById('svg-trail-lit').setAttribute('d', buildCurvePath(MAP_COORDS.slice(0, litEnd)));
 
       // Avatar na posição atual
-      const avPos = MAP_COORDS[state.avatarNode] || MAP_COORDS[0];
+      const avPos = MAP_COORDS[getAvatarNode()] || MAP_COORDS[0];
       const avEl = document.getElementById('hero-avatar');
       avEl.style.left = `${avPos.x}%`;
       avEl.style.top = `${avPos.y}%`;
@@ -2661,12 +3329,12 @@
       for (let i = 0; i < 6; i++) {
         const isBoss = i === 5;
         const pos = MAP_COORDS[i];
-        const done = isBoss ? state.artifact1 : state.completedTravelers.includes(i);
-        const isCurrent = i === nextIdx && !state.artifact1;
+        const done = isBoss ? artDone : comp.includes(i);
+        const isCurrent = i === nextIdx && !artDone;
         const unlocked = isBoss ? true : i <= nextIdx || done;
 
-        const icon = isBoss ? '👹' : TRAVELERS[i].icon;
-        const label = isBoss ? 'Malakor (Chefe)' : `${i + 1}. ${TRAVELERS[i].shortName}`;
+        const icon = isBoss ? '👹' : p.travelers[i].icon;
+        const label = isBoss ? `${p.boss.shortName} (Chefe)` : `${i + 1}. ${p.travelers[i].shortName}`;
 
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -2723,8 +3391,8 @@
       playSFX('step');
       const target = MAP_COORDS[nodeIdx];
       const avEl = document.getElementById('hero-avatar');
-      const moved = state.avatarNode !== nodeIdx;
-      state.avatarNode = nodeIdx;
+      const moved = getAvatarNode() !== nodeIdx;
+      setAvatarNode(activePhase, nodeIdx);
       saveState();
 
       avEl.style.left = `${target.x}%`;
@@ -2781,7 +3449,7 @@
     function openTravelerScene(idx) {
       activeTravelerIdx = idx;
       speechIdx = 0;
-      const t = TRAVELERS[idx];
+      const t = getPhaseData().travelers[idx];
 
       document.getElementById('traveler-badge').textContent = `Viajante ${idx + 1} de 5`;
       document.getElementById('traveler-portrait-svg').innerHTML = SVGS[t.svgKey];
@@ -2803,7 +3471,7 @@
 
     function showSpeech(index) {
       stopTyping();
-      const t = TRAVELERS[activeTravelerIdx];
+      const t = getPhaseData().travelers[activeTravelerIdx];
       speechIdx = index;
       const total = t.speeches.length;
 
@@ -2849,7 +3517,7 @@
 
     function finishTypingInstant() {
       stopTyping();
-      const t = TRAVELERS[activeTravelerIdx];
+      const t = getPhaseData().travelers[activeTravelerIdx];
       const isLast = speechIdx === t.speeches.length - 1;
       document.getElementById('dialogue-text').innerHTML = renderTokens(currentTokens, currentTokens.length, false);
 
@@ -2870,7 +3538,19 @@
       if (isTyping) {
         finishTypingInstant();
       } else {
-        const t = TRAVELERS[activeTravelerIdx];
+        const t = getPhaseData().travelers[activeTravelerIdx];
+        if (speechIdx < t.speeches.length - 1) {
+          playSFX('step');
+          showSpeech(speechIdx + 1);
+        }
+      }
+    }
+
+    function nextOrFinishTyping() {
+      if (isTyping) {
+        finishTypingInstant();
+      } else {
+        const t = getPhaseData().travelers[activeTravelerIdx];
         if (speechIdx < t.speeches.length - 1) {
           playSFX('step');
           showSpeech(speechIdx + 1);
@@ -2936,7 +3616,7 @@
     }
 
     function renderTravelerQuestion() {
-      const t = TRAVELERS[activeTravelerIdx];
+      const t = getPhaseData().travelers[activeTravelerIdx];
       const q = prepareShuffledQuestion(t.quiz[tQuizIdx]);
       activeShuffledTQuiz = q;
       tQuizAnswered = false;
@@ -2971,7 +3651,7 @@
       if (tQuizAnswered) return;
       tQuizAnswered = true;
 
-      const t = TRAVELERS[activeTravelerIdx];
+      const t = getPhaseData().travelers[activeTravelerIdx];
       const q = activeShuffledTQuiz;
       const letters = ['A', 'B', 'C', 'D'];
       const ok = chosenIdx === q.correct;
@@ -2987,7 +3667,7 @@
       const fb = document.getElementById('tquiz-feedback');
       if (ok) {
         playSFX('correct');
-        const awardKey = `t${activeTravelerIdx}_q${tQuizIdx}`;
+        const awardKey = activePhase === 1 ? `t${activeTravelerIdx}_q${tQuizIdx}` : `p2_t${activeTravelerIdx}_q${tQuizIdx}`;
         let xpTag = '';
         if (!state.quizAwarded[awardKey]) {
           state.quizAwarded[awardKey] = true;
@@ -3008,8 +3688,9 @@
 
       // Se for a última pergunta do viajante, já salva como concluído no Grimório
       if (tQuizIdx === t.quiz.length - 1) {
-        if (!state.completedTravelers.includes(activeTravelerIdx)) {
-          state.completedTravelers.push(activeTravelerIdx);
+        const comp = getCompletedTravelers();
+        if (!comp.includes(activeTravelerIdx)) {
+          comp.push(activeTravelerIdx);
           saveState();
           showToast(`${t.shortName} salvo no Grimório!`, '📖');
         }
@@ -3019,7 +3700,7 @@
     }
 
     function nextTravelerQuestion() {
-      const t = TRAVELERS[activeTravelerIdx];
+      const t = getPhaseData().travelers[activeTravelerIdx];
       if (tQuizIdx < t.quiz.length - 1) {
         playSFX('step');
         tQuizIdx++;
@@ -3031,18 +3712,26 @@
     }
 
     /* =======================================================================
-       11. BATALHA CONTRA MALAKOR (ANIMAÇÕES DE DANO, PROJÉTEIS E PARTÍCULAS)
+       11. BATALHA CONTRA O MINI-CHEFÃO (MALAKOR / VEXAR)
        ======================================================================= */
     function openBossIntro() {
-      document.getElementById('boss-intro-svg').innerHTML = SVGS.boss;
+      const p = getPhaseData();
+      const comp = getCompletedTravelers();
+
+      document.getElementById('boss-intro-svg').innerHTML = SVGS[p.boss.svgKey];
+      document.getElementById('boss-intro-badge').textContent = p.boss.badge;
+      document.getElementById('boss-intro-title').textContent = p.boss.fullName;
+      document.getElementById('boss-intro-quote').innerHTML = p.boss.quote;
+      document.getElementById('boss-intro-reward').innerHTML = p.boss.rewardDesc;
+
       document.getElementById('boss-intro').classList.remove('hidden');
       document.getElementById('boss-arena-wrap').classList.add('hidden');
       document.getElementById('boss-result').classList.add('hidden');
 
       const warn = document.getElementById('boss-warning-box');
-      if (state.completedTravelers.length < 5) {
+      if (comp.length < 5) {
         warn.classList.remove('hidden');
-        document.getElementById('boss-warn-count').textContent = `${state.completedTravelers.length}/5`;
+        document.getElementById('boss-warn-count').textContent = `${comp.length}/5`;
       } else {
         warn.classList.add('hidden');
       }
@@ -3060,19 +3749,21 @@
     }
 
     function buildBattleQuestions(isRematch) {
-      if (!isRematch && state.bossAttempts === 0) {
-        return BOSS_QUESTIONS.slice(0, 10);
+      const pool = getPhaseData().bossQuestions;
+      if (!isRematch && getBossAttempts() === 0) {
+        return pool.slice(0, 10);
       }
       // Revanche: inclui as 5 inéditas (10..14) + 5 priorizando temas errados
-      const unseen = BOSS_QUESTIONS.slice(10, 15);
-      const mainPool = BOSS_QUESTIONS.slice(0, 10);
-      const failedSet = new Set(state.lastFailedThemes || []);
+      const unseen = pool.slice(10, 15);
+      const mainPool = pool.slice(0, 10);
+      const failedSet = new Set(getLastFailedThemes() || []);
       const prio = shuffle(mainPool.filter((q) => failedSet.has(q.themeKey)));
       const rest = shuffle(mainPool.filter((q) => !failedSet.has(q.themeKey)));
       return shuffle([...unseen, ...[...prio, ...rest].slice(0, 5)]);
     }
 
     function startBossBattle(isRematch) {
+      const p = getPhaseData();
       playSFX('step');
       battle = {
         questions: buildBattleQuestions(isRematch).map(prepareShuffledQuestion),
@@ -3082,9 +3773,11 @@
         answered: false
       };
 
+      document.getElementById('boss-hp-name').textContent = `👹 ${p.boss.fullName}`;
+      document.getElementById('boss-slot-name').textContent = p.boss.shortName;
       document.getElementById('hero-sprite').innerHTML = SVGS.hero;
       const bossSp = document.getElementById('boss-sprite');
-      bossSp.innerHTML = SVGS.boss;
+      bossSp.innerHTML = SVGS[p.boss.svgKey];
       bossSp.className = 'boss-sprite';
 
       document.getElementById('boss-intro').classList.add('hidden');
@@ -3259,11 +3952,12 @@
       });
 
       const fb = document.getElementById('boss-feedback');
+      const bossShort = getPhaseData().boss.shortName;
       if (ok) {
         battle.correct++;
         playHeroAttackAnim();
         fb.className = 'feedback-box ok';
-        fb.innerHTML = `<strong>⚔️ Golpe Certeiro (${letters[q.correct]})! Malakor perdeu 10 HP!</strong> ${q.explanation}`;
+        fb.innerHTML = `<strong>⚔️ Golpe Certeiro (${letters[q.correct]})! ${bossShort} perdeu 10 HP!</strong> ${q.explanation}`;
       } else {
         battle.wrongItems.push({ question: q, chosenIdx });
         playBossCounterAnim();
@@ -3285,13 +3979,13 @@
     }
 
     function concludeBossBattle() {
-      state.bossAttempts++;
+      incBossAttempts(activePhase);
       const score = battle.correct;
       const pct = score * 10;
       const victory = score >= 8; // > 70%
 
       if (victory) {
-        // Animação de desintegração de Malakor antes de abrir a tela de vitória
+        // Animação de desintegração do Mini-Chefão antes de abrir a tela de vitória
         const bossSp = document.getElementById('boss-sprite');
         const stage = document.getElementById('arena-stage');
         bossSp.classList.add('defeated');
@@ -3306,6 +4000,7 @@
     }
 
     function showBossResult(victory, score, pct) {
+      const p = getPhaseData();
       document.getElementById('boss-arena-wrap').classList.add('hidden');
       const res = document.getElementById('boss-result');
       res.classList.remove('hidden');
@@ -3313,15 +4008,15 @@
       if (victory) {
         startConfetti();
         let bonusTxt = '';
-        if (!state.artifact1) {
-          state.artifact1 = true;
+        if (!hasArtifact(activePhase)) {
+          setArtifact(activePhase, true);
           addXP(200);
           bonusTxt = '+200 XP de Vitória Épica!';
         } else {
           addXP(50);
           bonusTxt = '+50 XP de Revisão Concluída!';
         }
-        state.lastFailedThemes = [];
+        setLastFailedThemes(activePhase, []);
         saveState();
 
         res.innerHTML = `
@@ -3330,14 +4025,14 @@
               🔮
             </div>
             <span class="badge badge-emerald">Vitória! • ${score}/10 (${pct}%)</span>
-            <h2 class="epic-title" style="font-size:clamp(1.5rem,3vw,2.2rem);color:var(--gold-bright);margin:10px 0 8px;">Malakor Foi Derrotado!</h2>
+            <h2 class="epic-title" style="font-size:clamp(1.5rem,3vw,2.2rem);color:var(--gold-bright);margin:10px 0 8px;">${p.boss.shortName} Foi Derrotado!</h2>
             <p style="color:#cbd5e1;max-width:560px;margin:0 auto 22px;font-size:0.95rem;">
-              Você superou os 70% exigidos e purificou o Reino do Capítulo 16!
+              Você superou os 70% exigidos e purificou o ${p.hudShort}!
             </p>
 
             <div style="max-width:420px;margin:0 auto 24px;padding:18px;border-radius:14px;background:rgba(9,13,27,0.88);border:1.5px solid rgba(196,181,253,0.5);">
-              <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--arcane-bright);">Artefato Conquistado (1/6)</div>
-              <div class="epic-title" style="font-size:1.2rem;color:#fff;font-weight:700;margin:4px 0;">📜 O Pergaminho da Normalização</div>
+              <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:var(--arcane-bright);">${p.boss.artifactLabel}</div>
+              <div class="epic-title" style="font-size:1.2rem;color:#fff;font-weight:700;margin:4px 0;">${p.boss.artifactName}</div>
               <div style="font-size:0.8rem;color:#34d399;font-weight:700;">${bonusTxt}</div>
             </div>
 
@@ -3349,17 +4044,17 @@
         `;
       } else {
         const failedThemes = [...new Set(battle.wrongItems.map((w) => w.question.themeKey))];
-        state.lastFailedThemes = failedThemes;
+        setLastFailedThemes(activePhase, failedThemes);
         saveState();
 
-        const helpers = TRAVELERS.filter((t) => failedThemes.includes(t.themeKey));
+        const helpers = p.travelers.filter((t) => failedThemes.includes(t.themeKey));
 
         res.innerHTML = `
           <div class="rpg-panel view-enter" style="padding:26px 22px;border-color:rgba(239,68,68,0.5);">
             <div style="text-align:center;margin-bottom:22px;">
               <div style="font-size:3rem;margin-bottom:6px;">🛡️</div>
               <span class="badge badge-crimson">Recuo Estratégico • ${score}/10 (${pct}%)</span>
-              <h2 class="epic-title" style="font-size:1.55rem;color:#fff;margin:8px 0;">Faltou pouco para derrotar Malakor!</h2>
+              <h2 class="epic-title" style="font-size:1.55rem;color:#fff;margin:8px 0;">Faltou pouco para derrotar ${p.boss.shortName}!</h2>
               <p style="font-size:0.9rem;color:#cbd5e1;max-width:600px;margin:0 auto;">
                 Para conquistar o Artefato, você precisa acertar <strong>mais de 70%</strong> (pelo menos 8 de 10 questões). Revise exatamente onde perdeu terreno e volte mais forte!
               </p>
@@ -3396,7 +4091,7 @@
 
             <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;">
               <button class="btn btn-slate" onclick="navigateTo('map')">← Voltar ao Mapa</button>
-              <button class="btn btn-gold" onclick="startBossBattle(true)">⚔️ Enfrentar Malakor Novamente (com Inéditas)</button>
+              <button class="btn btn-gold" onclick="startBossBattle(true)">⚔️ Enfrentar ${p.boss.shortName} Novamente (com Inéditas)</button>
             </div>
           </div>
         `;
@@ -3466,22 +4161,35 @@
     }
 
     /* =======================================================================
-       13. MODAIS (GRIMÓRIO E REINÍCIO)
+       13. MODAIS (GRIMÓRIO COM ABAS CAP. 16 / CAP. 17 E REINÍCIO)
        ======================================================================= */
-    function openGrimoire() {
+    function switchGrimoireTab(phaseId) {
+      grimoireTab = phaseId;
+      renderGrimoireContent();
+    }
+
+    function renderGrimoireContent() {
+      const tab1 = document.getElementById('gtab-1');
+      const tab2 = document.getElementById('gtab-2');
+      tab1.className = grimoireTab === 1 ? 'btn btn-gold btn-sm' : 'btn btn-slate btn-sm';
+      tab2.className = grimoireTab === 2 ? 'btn btn-gold btn-sm' : 'btn btn-slate btn-sm';
+
       const body = document.getElementById('grimoire-body');
       body.innerHTML = '';
 
-      if (state.completedTravelers.length === 0) {
+      const p = PHASES[grimoireTab];
+      const comp = getCompletedTravelers(grimoireTab);
+
+      if (comp.length === 0) {
         body.innerHTML = `
           <div style="text-align:center;padding:32px 12px;color:#94a3b8;">
             <div style="font-size:2.6rem;margin-bottom:8px;">📜</div>
-            <p style="font-size:0.95rem;color:#e2e8f0;">Seu Grimório ainda está vazio.</p>
-            <p style="font-size:0.82rem;margin-top:4px;">Converse com os viajantes do Capítulo 16 e conclua o desafio de fixação para desbloquear os resumos aqui!</p>
+            <p style="font-size:0.95rem;color:#e2e8f0;">Nenhum registro do ${p.hudTag} desbloqueado ainda.</p>
+            <p style="font-size:0.82rem;margin-top:4px;">Converse com os viajantes do ${p.hudShort} e conclua o desafio de fixação para salvar os resumos aqui!</p>
           </div>`;
       } else {
-        TRAVELERS.forEach((t) => {
-          const unlocked = state.completedTravelers.includes(t.id);
+        p.travelers.forEach((t) => {
+          const unlocked = comp.includes(t.id);
           const box = document.createElement('div');
           box.style.cssText = `padding:16px;border-radius:14px;border:1px solid ${
             unlocked ? 'var(--gold-dim)' : 'rgba(71,85,105,0.35)'
@@ -3506,7 +4214,11 @@
           body.appendChild(box);
         });
       }
+    }
 
+    function openGrimoire() {
+      grimoireTab = activePhase;
+      renderGrimoireContent();
       document.getElementById('modal-grimoire').classList.remove('hidden');
     }
 
